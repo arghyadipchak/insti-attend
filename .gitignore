@@ -1,0 +1,10 @@
+# Editor directories and files
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+pnpm-debug.log*
+
+# Dependencies
+node_modules/
