@@ -6,13 +6,24 @@
   let stream: MediaStream
   let devices: MediaDeviceInfo[] = []
   let selectedDeviceId = ''
+
+  let offscreen = new OffscreenCanvas(1, 1)
+  let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
+
   const fps = 60
 
   onMount(async () => {
-    await getCameraDevices()
+    window.addEventListener('resize', resizeOffscreenCanvas)
 
-    setInterval(decodeBarcode, 1000 / fps)
+    if (await getCameraDevices()) setInterval(decodeBarcode, 1000 / fps)
   })
+
+  function resizeOffscreenCanvas() {
+    if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
+      offscreen.width = videoElement.videoWidth
+      offscreen.height = videoElement.videoHeight
+    }
+  }
 
   async function getCameraDevices() {
     try {
@@ -25,7 +36,10 @@
       }
     } catch (err) {
       console.error('Error fetching camera devices:', err)
+      return false
     }
+
+    return true
   }
 
   async function startCamera() {
@@ -42,26 +56,20 @@
 
       videoElement.srcObject = stream
       videoElement.play()
+      videoElement.onloadedmetadata = resizeOffscreenCanvas
     } catch (err) {
       console.error('Error accessing camera:', err)
     }
   }
 
   function decodeBarcode() {
-    let width = videoElement.videoWidth
-    let height = videoElement.videoHeight
-
-    let offscreen = new OffscreenCanvas(width, height)
-    let ctx = offscreen.getContext('2d')
-
-    if (!ctx) return
     ctx.drawImage(videoElement, 0, 0)
 
-    let imgData = ctx.getImageData(0, 0, width, height)
+    let imgData = ctx.getImageData(0, 0, offscreen.width, offscreen.height)
     let luma8Data = convert_imagedata_to_luma(imgData)
 
     try {
-      let parsedBarcode = decode_barcode(luma8Data, width, height)
+      let parsedBarcode = decode_barcode(luma8Data, offscreen.width, offscreen.height)
       console.log('Parsed:', parsedBarcode.text())
     } catch {}
   }
