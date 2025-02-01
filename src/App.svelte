@@ -1,12 +1,18 @@
 <script lang="ts">
+  import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
   import { onMount } from 'svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
   let devices: MediaDeviceInfo[] = []
   let selectedDeviceId = ''
+  const fps = 60
 
-  onMount(getCameraDevices)
+  onMount(async () => {
+    await getCameraDevices()
+
+    setInterval(decodeBarcode, 1000 / fps)
+  })
 
   async function getCameraDevices() {
     try {
@@ -39,6 +45,25 @@
     } catch (err) {
       console.error('Error accessing camera:', err)
     }
+  }
+
+  function decodeBarcode() {
+    let width = videoElement.videoWidth
+    let height = videoElement.videoHeight
+
+    let offscreen = new OffscreenCanvas(width, height)
+    let ctx = offscreen.getContext('2d')
+
+    if (!ctx) return
+    ctx.drawImage(videoElement, 0, 0)
+
+    let imgData = ctx.getImageData(0, 0, width, height)
+    let luma8Data = convert_imagedata_to_luma(imgData)
+
+    try {
+      let parsedBarcode = decode_barcode(luma8Data, width, height)
+      console.log('Parsed:', parsedBarcode.text())
+    } catch {}
   }
 </script>
 
