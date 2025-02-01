@@ -14,6 +14,8 @@
 
   const fps = 60
 
+  let popupModal: HTMLDialogElement
+
   onMount(async () => {
     window.addEventListener('resize', resizeOffscreenCanvas)
 
@@ -43,7 +45,7 @@
         device => device.kind === 'videoinput'
       )
       if (devices.length > 0) {
-        selectedDeviceId = devices[1].deviceId
+        selectedDeviceId = devices[0].deviceId
         await startCamera()
       }
     } catch (err) {
@@ -110,10 +112,35 @@
 
   <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
-  <button class="bg-primary text-primary-content mt-4 flex items-center gap-x-2 rounded px-4 py-2">
+  <button class="btn bg-primary text-primary-content" onclick={() => popupModal.showModal()}>
     <Icon icon="mdi:pen" height="1.2rem" />
     Take Manual Entry
   </button>
+
+  <dialog bind:this={popupModal} class="modal modal-bottom">
+    <div class="modal-box">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+      </form>
+      <h3 class="text-lg font-bold">Enter student details</h3>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Roll Number</legend>
+        <input type="text" class="input mb-4" placeholder="Type here" />
+        <div class="flex items-center space-x-2">
+          <input type="radio" name="radio-1" class="radio" checked={true} />
+          <span>ID card unavailable</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="radio" name="radio-1" class="radio" />
+          <span>ID card available</span>
+        </div>
+        <button class="btn btn-neutral mt-4">Present</button>
+      </fieldset>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
 
   <!-- dummy div to take some space -->
   <div class="h-20"></div>
