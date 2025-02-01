@@ -2,6 +2,9 @@
 .github/
 .gitignore
 
+.dockerignore
+Dockerfile
+
 .DS_Store
 .vscode/
 
@@ -9,8 +12,10 @@ pnpm-debug.log*
 
 node_modules/
 
-.dockerignore
-Dockerfile
+dist/
+
+.prettierignore
+prettier.config.js
 
 LICENSE
 README.md

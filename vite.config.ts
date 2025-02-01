@@ -4,5 +4,8 @@ import { defineConfig } from 'vite'
 import wasm from 'vite-plugin-wasm'
 
 export default defineConfig({
-  plugins: [wasm(), svelte(), tailwindcss()]
+  plugins: [wasm(), svelte(), tailwindcss()],
+  build: {
+    target: 'esnext'
+  }
 })
