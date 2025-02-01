@@ -1,0 +1,16 @@
+.git/
+.github/
+.gitignore
+
+.DS_Store
+.vscode/
+
+pnpm-debug.log*
+
+node_modules/
+
+.dockerignore
+Dockerfile
+
+LICENSE
+README.md
