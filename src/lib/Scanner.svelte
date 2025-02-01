@@ -1,6 +1,7 @@
 <script lang="ts">
   import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
   import { onMount } from 'svelte'
+  import Icon from '@iconify/svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -75,10 +76,36 @@
   }
 </script>
 
-<div class="flex flex-col">
-  <video bind:this={videoElement} class="w-full border border-gray-300" autoplay>
-    <track kind="captions" />
-  </video>
+<div class="bg-base-300 flex flex-1 flex-col items-center justify-center gap-y-10">
+  <div class="relative w-full max-w-md">
+    <video bind:this={videoElement} class="w-full h-full p-8" autoplay>
+      <track kind="captions" />
+    </video>
+    <div class="pointer-events-none absolute inset-0 flex items-center justify-between m-10">
+      <div
+        class="animate-blink absolute top-4 left-4 h-10 w-10 rounded-tl-lg border-t-4 border-l-4 border-white"
+      ></div>
+      <div
+        class="animate-blink absolute top-4 right-4 h-10 w-10 rounded-tr-lg border-t-4 border-r-4 border-white"
+      ></div>
+      <div
+        class="animate-blink absolute bottom-4 left-4 h-10 w-10 rounded-bl-lg border-b-4 border-l-4 border-white"
+      ></div>
+      <div
+        class="animate-blink absolute right-4 bottom-4 h-10 w-10 rounded-br-lg border-r-4 border-b-4 border-white"
+      ></div>
+    </div>
+  </div>
+
+  <span class="text-lg font-medium">Scan the barcode to mark attendance</span>
+
+  <button class="bg-primary text-primary-content mt-4 flex items-center gap-x-2 rounded px-4 py-2">
+    <Icon icon="mdi:pen" height="1.2rem" />
+    Take Manual Entry
+  </button>
+  
+  <!-- dummy div to take some space -->
+  <div class="h-20"></div>
 </div>
 
 <!-- <div class="space-y-2">
