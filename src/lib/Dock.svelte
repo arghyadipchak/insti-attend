@@ -1,5 +1,12 @@
+<script lang="ts">
+  import { selectComponent, selectedComponent } from './store'
+</script>
+
 <div class="dock bg-base-100">
-  <button class="dock-active">
+  <button
+    class:dock-active={$selectedComponent === 'scanner'}
+    onclick={() => selectComponent('scanner')}
+  >
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
       ><path
         fill="currentColor"
@@ -9,7 +16,10 @@
     <span class="dock-label">Scan ID</span>
   </button>
 
-  <button class="">
+  <button
+    class:dock-active={$selectedComponent === 'attendance'}
+    onclick={() => selectComponent('attendance')}
+  >
     <div class="indicator">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 256 256"
         ><g fill="currentColor"
@@ -23,7 +33,10 @@
     <span class="dock-label">Attendance</span>
   </button>
 
-  <button>
+  <button
+    class:dock-active={$selectedComponent === 'settings'}
+    onclick={() => selectComponent('settings')}
+  >
     <svg class="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
       ><g fill="currentColor" stroke-linejoin="miter" stroke-linecap="butt"
         ><circle

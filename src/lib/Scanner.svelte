@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
-  import { onMount } from 'svelte'
   import Icon from '@iconify/svelte'
+  import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
+  import { onDestroy, onMount } from 'svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
   let devices: MediaDeviceInfo[] = []
   let selectedDeviceId = ''
+  let intervalId: number
 
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
@@ -16,7 +17,17 @@
   onMount(async () => {
     window.addEventListener('resize', resizeOffscreenCanvas)
 
-    if (await getCameraDevices()) setInterval(decodeBarcode, 1000 / fps)
+    if (await getCameraDevices()) {
+      intervalId = setInterval(decodeBarcode, 1000 / fps)
+    }
+  })
+
+  onDestroy(() => {
+    window.removeEventListener('resize', resizeOffscreenCanvas)
+
+    if (stream) stream.getTracks().forEach(track => track.stop())
+
+    clearInterval(intervalId)
   })
 
   function resizeOffscreenCanvas() {
@@ -32,7 +43,7 @@
         device => device.kind === 'videoinput'
       )
       if (devices.length > 0) {
-        selectedDeviceId = devices[0].deviceId
+        selectedDeviceId = devices[1].deviceId
         await startCamera()
       }
     } catch (err) {
@@ -78,10 +89,10 @@
 
 <div class="bg-base-300 flex flex-1 flex-col items-center justify-center gap-y-10">
   <div class="relative w-full max-w-md">
-    <video bind:this={videoElement} class="w-full h-full p-8" autoplay>
+    <video bind:this={videoElement} class="h-full w-full p-8" autoplay>
       <track kind="captions" />
     </video>
-    <div class="pointer-events-none absolute inset-0 flex items-center justify-between m-10">
+    <div class="pointer-events-none absolute inset-0 m-10 flex items-center justify-between">
       <div
         class="animate-blink absolute top-4 left-4 h-10 w-10 rounded-tl-lg border-t-4 border-l-4 border-white"
       ></div>
@@ -97,13 +108,13 @@
     </div>
   </div>
 
-  <span class="text-lg font-medium">Scan the barcode to mark attendance</span>
+  <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
   <button class="bg-primary text-primary-content mt-4 flex items-center gap-x-2 rounded px-4 py-2">
     <Icon icon="mdi:pen" height="1.2rem" />
     Take Manual Entry
   </button>
-  
+
   <!-- dummy div to take some space -->
   <div class="h-20"></div>
 </div>
