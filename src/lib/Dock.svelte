@@ -1,12 +1,12 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { selectComponent, selectedComponent } from './store'
+  import { selectedComponent } from './store'
 </script>
 
-<div class="dock bg-base-100">
+<nav class="dock bg-base-100 relative">
   <button
     class:dock-active={$selectedComponent === 'scanner'}
-    onclick={() => selectComponent('scanner')}
+    onclick={() => selectedComponent.set('scanner')}
   >
     <Icon icon="mdi:credit-card-scan" width="1.5rem" height="1.5rem" />
     <span class="dock-label">Scan ID</span>
@@ -14,7 +14,7 @@
 
   <button
     class:dock-active={$selectedComponent === 'attendance'}
-    onclick={() => selectComponent('attendance')}
+    onclick={() => selectedComponent.set('attendance')}
   >
     <div class="indicator">
       <Icon icon="ph:student" width="1.5rem" height="1.5rem" />
@@ -25,9 +25,9 @@
 
   <button
     class:dock-active={$selectedComponent === 'settings'}
-    onclick={() => selectComponent('settings')}
+    onclick={() => selectedComponent.set('settings')}
   >
     <Icon icon="solar:settings-outline" width="1.5rem" height="1.5rem" />
     <span class="dock-label">Settings</span>
   </button>
-</div>
+</nav>

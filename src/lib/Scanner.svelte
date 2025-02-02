@@ -2,69 +2,52 @@
   import Icon from '@iconify/svelte'
   import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
+  import { fps, selectedDeviceId } from './store'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
-  let devices: MediaDeviceInfo[] = []
-  let selectedDeviceId = ''
   let intervalId: number
 
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
 
-  const fps = 60
+  let rollScanned = $state('')
 
-  let popupModal: HTMLDialogElement
+  let autoModal: HTMLDialogElement
+  let manualModal: HTMLDialogElement
+
+  $effect(() => {
+    if (rollScanned) {
+      clearInterval(intervalId)
+      autoModal.showModal()
+    } else intervalId = setInterval(decodeBarcode, 1000 / $fps)
+  })
 
   onMount(async () => {
     window.addEventListener('resize', resizeOffscreenCanvas)
-
-    if (await getCameraDevices()) {
-      intervalId = setInterval(decodeBarcode, 1000 / fps)
-    }
+    await startCamera()
   })
 
-  onDestroy(() => {
-    window.removeEventListener('resize', resizeOffscreenCanvas)
-
-    if (stream) stream.getTracks().forEach(track => track.stop())
-
+  onDestroy(async () => {
     clearInterval(intervalId)
+    window.removeEventListener('resize', resizeOffscreenCanvas)
+    await stopCamera()
   })
 
   function resizeOffscreenCanvas() {
-    if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
+    if (videoElement && videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
       offscreen.width = videoElement.videoWidth
       offscreen.height = videoElement.videoHeight
     }
   }
 
-  async function getCameraDevices() {
-    try {
-      devices = (await navigator.mediaDevices.enumerateDevices()).filter(
-        device => device.kind === 'videoinput'
-      )
-      if (devices.length > 0) {
-        selectedDeviceId = devices[0].deviceId
-        await startCamera()
-      }
-    } catch (err) {
-      console.error('Error fetching camera devices:', err)
-      return false
-    }
-
-    return true
-  }
-
   async function startCamera() {
     try {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop())
-      }
+      if (stream) stream.getTracks().forEach(track => track.stop())
 
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+          deviceId: $selectedDeviceId ? { exact: $selectedDeviceId } : undefined
         }
       })
 
@@ -76,6 +59,13 @@
     }
   }
 
+  async function stopCamera() {
+    videoElement.pause()
+    videoElement.srcObject = null
+
+    if (stream) stream.getTracks().forEach(track => track.stop())
+  }
+
   function decodeBarcode() {
     ctx.drawImage(videoElement, 0, 0)
 
@@ -84,7 +74,7 @@
 
     try {
       let parsedBarcode = decode_barcode(luma8Data, offscreen.width, offscreen.height)
-      console.log('Parsed:', parsedBarcode.text())
+      rollScanned = parsedBarcode.text()
     } catch {}
   }
 </script>
@@ -112,52 +102,75 @@
 
   <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
-  <button class="btn bg-primary text-primary-content" onclick={() => popupModal.showModal()}>
+  <button class="btn bg-primary text-primary-content" onclick={() => manualModal.showModal()}>
     <Icon icon="mdi:pen" height="1.2rem" />
     Take Manual Entry
   </button>
 
-  <dialog bind:this={popupModal} class="modal modal-bottom">
+  <dialog bind:this={autoModal} class="modal modal-bottom">
+    <div class="modal-box items-center gap-y-4">
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
+          onclick={() => (rollScanned = '')}>✕</button
+        >
+      </form>
+
+      <h3 class="text-center font-bold">{rollScanned}</h3>
+
+      <button class="btn btn-secondary mt-4 w-full">Mark Present</button>
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+      <button onclick={() => (rollScanned = '')}>close</button>
+    </form>
+  </dialog>
+
+  <dialog bind:this={manualModal} class="modal modal-bottom">
     <div class="modal-box">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
       </form>
-      <h3 class="text-lg font-bold">Enter student details</h3>
+
+      <h3 class="text-lg font-bold">Enter Student Details</h3>
+
       <fieldset class="fieldset">
         <legend class="fieldset-legend">Roll Number</legend>
-        <input type="text" class="input mb-4" placeholder="Type here" />
-        <div class="flex items-center space-x-2">
+        <input type="text" class="input w-full" placeholder="Type here" />
+
+        <legend class="fieldset-legend">Reason</legend>
+        <div class="flex items-center gap-x-2">
           <input type="radio" name="radio-1" class="radio" checked={true} />
           <span>ID card unavailable</span>
         </div>
+
         <div class="flex items-center space-x-2">
           <input type="radio" name="radio-1" class="radio" />
           <span>ID card available</span>
         </div>
-        <button class="btn btn-neutral mt-4">Present</button>
       </fieldset>
+
+      <button class="btn btn-secondary mt-4 w-full">Mark Present</button>
     </div>
+
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
     </form>
   </dialog>
-
-  <!-- dummy div to take some space -->
-  <div class="h-20"></div>
 </div>
 
-<!-- <div class="space-y-2">
-    <label for="camera-select" class="block font-medium">Select Camera:</label>
-    <select
-      id="camera-select"
-      bind:value={selectedDeviceId}
-      on:change={startCamera}
-      class="w-full rounded border border-gray-300 p-2"
-    >
-      {#each devices as device}
-        <option value={device.deviceId}>
-          {device.label || `Camera ${devices.indexOf(device) + 1}`}
-        </option>
-      {/each}
-    </select>
-  </div> -->
+<style>
+  .animate-blink {
+    animation: blink 1s infinite ease-in-out;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
