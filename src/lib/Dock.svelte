@@ -18,7 +18,7 @@
   >
     <div class="indicator">
       <Icon icon="ph:student" width="1.5rem" height="1.5rem" />
-      <span class="badge badge-sm indicator-item bg-accent text-accent-content mt-1">8</span>
+      <span class="badge badge-sm indicator-item bg-accent text-accent-content mt-1">20</span>
     </div>
     <span class="dock-label">Attendance</span>
   </button>

@@ -2,9 +2,9 @@
     <div class="stats bg-base-200 border-base-300 w-fit border mb-4">
       <div class="stat place-items-center">
         <div class="stat-title">Entries</div>
-        <div class="stat-value text-secondary">20</div>
-        <div class="stat-desc text-secondary">Auto: 20 (100%)</div>
-        <div class="stat-desc text-secondary">Manual: 0 (0%)</div>
+        <div class="stat-value text-info">20</div>
+        <div class="stat-desc text-info">Auto: 20 (100%)</div>
+        <div class="stat-desc text-info">Manual: 0 (0%)</div>
       </div>
       <div class="stat">
         <div class="stat-title">Export / Import</div>
