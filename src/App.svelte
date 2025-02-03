@@ -5,19 +5,33 @@
   import Navbar from './lib/Navbar.svelte'
   import Scanner from './lib/Scanner.svelte'
   import Settings from './lib/Settings.svelte'
-  import { devices, selectedComponent, selectedDeviceId } from './lib/store'
+  import { devices, fps, rollRegex, selectedComponent, selectedDeviceId } from './lib/store'
 
-  onMount(() => {
-    getCameraDevices()
+  onMount(async () => {
+    await getCameraDevices()
+
+    let storedDeviceId = localStorage.getItem('deviceId')
+    if ($devices.length > 0) {
+      if (storedDeviceId && $devices.find(device => device.deviceId === storedDeviceId))
+        selectedDeviceId.set(storedDeviceId)
+      else selectedDeviceId.set($devices[0].deviceId)
+    }
+
+    let storedFps = localStorage.getItem('fps')
+    if (storedFps) fps.set(Number(storedFps))
+
+    let storedRollRegex = localStorage.getItem('rollRegex')
+    if (storedRollRegex) rollRegex.set(storedRollRegex)
+
+    selectedDeviceId.subscribe(value => localStorage.setItem('deviceId', value))
+    fps.subscribe(value => localStorage.setItem('fps', value.toString()))
+    rollRegex.subscribe(value => localStorage.setItem('rollRegex', value))
   })
 
   async function getCameraDevices() {
     try {
-      let localDevices = (await navigator.mediaDevices.enumerateDevices()).filter(
-        device => device.kind === 'videoinput'
-      )
-      devices.set(localDevices)
-      if (localDevices.length > 0) selectedDeviceId.set(localDevices[0].deviceId)
+      let mediaDevices = await navigator.mediaDevices.enumerateDevices()
+      devices.set(mediaDevices.filter(device => device.kind === 'videoinput'))
     } catch (err) {
       console.error('Error fetching camera devices:', err)
     }

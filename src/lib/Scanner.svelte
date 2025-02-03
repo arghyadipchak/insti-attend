@@ -1,38 +1,49 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
   import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
-  import { onDestroy, onMount } from 'svelte'
-  import { fps, selectedDeviceId } from './store'
+  import { onDestroy } from 'svelte'
+  import { fps, rollRegex, selectedDeviceId } from './store'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
-  let intervalId: number
+  let intervalId = 0
 
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
 
   let rollScanned = $state('')
+  let rollRegExp = $derived(new RegExp($rollRegex, 'g'))
 
   let autoModal: HTMLDialogElement
   let manualModal: HTMLDialogElement
 
   $effect(() => {
     if (rollScanned) {
-      clearInterval(intervalId)
+      stopInterval()
       autoModal.showModal()
-    } else intervalId = setInterval(decodeBarcode, 1000 / $fps)
+    } else startInterval()
   })
 
-  onMount(async () => {
-    window.addEventListener('resize', resizeOffscreenCanvas)
-    await startCamera()
+  $effect(() => {
+    if ($selectedDeviceId) startCamera()
   })
+
+  window.addEventListener('resize', resizeOffscreenCanvas)
 
   onDestroy(async () => {
-    clearInterval(intervalId)
-    window.removeEventListener('resize', resizeOffscreenCanvas)
+    stopInterval()
     await stopCamera()
   })
+
+  function startInterval() {
+    if (intervalId) return
+    intervalId = setInterval(decodeBarcode, 1000 / $fps)
+  }
+
+  function stopInterval() {
+    clearInterval(intervalId)
+    intervalId = 0
+  }
 
   function resizeOffscreenCanvas() {
     if (videoElement && videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
@@ -51,9 +62,9 @@
         }
       })
 
+      videoElement.onloadedmetadata = resizeOffscreenCanvas
       videoElement.srcObject = stream
       videoElement.play()
-      videoElement.onloadedmetadata = resizeOffscreenCanvas
     } catch (err) {
       console.error('Error accessing camera:', err)
     }
@@ -73,8 +84,8 @@
     let luma8Data = convert_imagedata_to_luma(imgData)
 
     try {
-      let parsedBarcode = decode_barcode(luma8Data, offscreen.width, offscreen.height)
-      rollScanned = parsedBarcode.text()
+      let decoded = decode_barcode(luma8Data, offscreen.width, offscreen.height).text()
+      if (!rollRegExp || rollRegExp.test(decoded)) rollScanned = decoded
     } catch {}
   }
 </script>
