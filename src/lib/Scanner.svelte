@@ -1,8 +1,8 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
   import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
-  import { onDestroy } from 'svelte'
-  import { fps, rollRegex, selectedDeviceId } from './store'
+  import { onDestroy, onMount } from 'svelte'
+  import { attendance, fps, rollRegex, selectedDeviceId } from './store'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -11,24 +11,21 @@
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
 
-  let rollScanned = $state('')
   let rollRegExp = $derived(new RegExp($rollRegex, 'g'))
+  let rollNo = $state('')
+  let rollNoValid = $derived(!rollNo || rollRegExp.test(rollNo))
+  let manualReason = $state('no id card')
 
   let autoModal: HTMLDialogElement
   let manualModal: HTMLDialogElement
-
-  $effect(() => {
-    if (rollScanned) {
-      stopInterval()
-      autoModal.showModal()
-    } else startInterval()
-  })
 
   $effect(() => {
     if ($selectedDeviceId) startCamera()
   })
 
   window.addEventListener('resize', resizeOffscreenCanvas)
+
+  onMount(startInterval)
 
   onDestroy(async () => {
     stopInterval()
@@ -85,8 +82,43 @@
 
     try {
       let decoded = decode_barcode(luma8Data, offscreen.width, offscreen.height).text()
-      if (!rollRegExp || rollRegExp.test(decoded)) rollScanned = decoded
+      if (!rollRegExp || rollRegExp.test(decoded)) {
+        rollNo = decoded
+        autoOpen()
+      }
     } catch {}
+  }
+
+  function autoOpen() {
+    stopInterval()
+    autoModal.showModal()
+  }
+
+  function autoClose() {
+    startInterval()
+  }
+
+  function autoPresent() {
+    attendance.update(store => ({
+      ...store,
+      [rollNo]: { auto: true, reason: '' }
+    }))
+  }
+
+  function manualOpen() {
+    stopInterval()
+    manualModal.showModal()
+  }
+
+  function manualClose() {
+    startInterval()
+  }
+
+  function manualPresent() {
+    attendance.update(store => ({
+      ...store,
+      [rollNo]: { auto: false, reason: manualReason }
+    }))
   }
 </script>
 
@@ -113,31 +145,30 @@
 
   <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
-  <button class="btn bg-primary text-primary-content" onclick={() => manualModal.showModal()}>
+  <button class="btn bg-primary text-primary-content" onclick={manualOpen}>
     <Icon icon="mdi:pen" height="1.2rem" />
     Take Manual Entry
   </button>
 
-  <dialog bind:this={autoModal} class="modal modal-bottom">
+  <dialog bind:this={autoModal} class="modal modal-bottom" onclose={autoClose}>
     <div class="modal-box items-center gap-y-4">
       <form method="dialog">
-        <button
-          class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
-          onclick={() => (rollScanned = '')}>✕</button
-        >
+        <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
       </form>
 
-      <h3 class="text-center font-bold">{rollScanned}</h3>
+      <h3 class="text-center font-bold">{rollNo}</h3>
 
-      <button class="btn btn-secondary mt-4 w-full">Mark Present</button>
+      <form method="dialog">
+        <button class="btn btn-secondary mt-4 w-full" onclick={autoPresent}>Mark Present</button>
+      </form>
     </div>
 
     <form method="dialog" class="modal-backdrop">
-      <button onclick={() => (rollScanned = '')}>close</button>
+      <button>close</button>
     </form>
   </dialog>
 
-  <dialog bind:this={manualModal} class="modal modal-bottom">
+  <dialog bind:this={manualModal} class="modal modal-bottom" onclose={manualClose}>
     <div class="modal-box">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
@@ -147,21 +178,38 @@
 
       <fieldset class="fieldset">
         <legend class="fieldset-legend">Roll Number</legend>
-        <input type="text" class="input w-full" placeholder="Type here" />
+        <input bind:value={rollNo} type="text" class="input w-full" placeholder="Type here" />
+        <span class="text-error font-bold" class:invisible={rollNoValid}>
+          Invalid Roll No! Fix Regex?
+        </span>
 
         <legend class="fieldset-legend">Reason</legend>
         <div class="flex items-center gap-x-2">
-          <input type="radio" name="radio-1" class="radio" checked={true} />
+          <input
+            bind:group={manualReason}
+            type="radio"
+            name="reason-radio"
+            class="radio"
+            value="no id card"
+          />
           <span>ID card unavailable</span>
         </div>
 
         <div class="flex items-center space-x-2">
-          <input type="radio" name="radio-1" class="radio" />
+          <input
+            bind:group={manualReason}
+            type="radio"
+            name="reason-radio"
+            class="radio"
+            value="not scanable"
+          />
           <span>ID card available</span>
         </div>
       </fieldset>
 
-      <button class="btn btn-secondary mt-4 w-full">Mark Present</button>
+      <form method="dialog">
+        <button class="btn btn-secondary mt-4 w-full" onclick={manualPresent}>Mark Present</button>
+      </form>
     </div>
 
     <form method="dialog" class="modal-backdrop">
