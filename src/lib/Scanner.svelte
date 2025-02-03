@@ -11,13 +11,12 @@
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
 
-  let rollRegExp = $derived(new RegExp(rollRegex.value, 'g'))
-  let rollNo = $state('')
-  let rollNoValid = $derived(!rollNo || rollRegExp.test(rollNo))
-  let manualReason = $state('no id card')
-
   let autoModal: HTMLDialogElement
   let manualModal: HTMLDialogElement
+
+  let rollNo = $state('')
+  let manualReason = $state('no id card')
+  let rollNoValid = $derived(!rollNo || rollNo.match(rollRegex.value) !== null)
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
@@ -82,7 +81,7 @@
 
     try {
       let decoded = decode_barcode(luma8Data, offscreen.width, offscreen.height).text()
-      if (!rollRegExp || rollRegExp.test(decoded)) {
+      if (!rollRegex.value || decoded.match(rollRegex.value) !== null) {
         rollNo = decoded
         autoOpen()
       }
@@ -184,7 +183,6 @@
           />
           <span>ID card unavailable</span>
         </div>
-
         <div class="flex items-center space-x-2">
           <input
             bind:group={manualReason}
@@ -198,7 +196,13 @@
       </fieldset>
 
       <form method="dialog">
-        <button class="btn btn-secondary mt-4 w-full" onclick={manualPresent}>Mark Present</button>
+        <button
+          class="btn btn-secondary mt-4 w-full"
+          class:btn-disabled={!rollNoValid}
+          onclick={manualPresent}
+        >
+          Mark Present
+        </button>
       </form>
     </div>
 

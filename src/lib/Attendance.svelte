@@ -1,28 +1,10 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance } from './shared.svelte'
+  import { attendance, rollRegex } from './shared.svelte'
 
   let totalCount = $derived(Object.keys(attendance).length)
   let autoCount = $derived(Object.keys(attendance).filter(id => attendance[id].auto).length)
   let manualCount = $derived(totalCount - autoCount)
-
-  let allChecked = $state(false)
-  let selectedRollNo = $state(new Set([] as string[]))
-
-  function toggleAll() {
-    selectedRollNo = allChecked ? new Set(Object.keys(attendance)) : new Set([])
-  }
-
-  function toggle(rollNo: string) {
-    if (selectedRollNo.has(rollNo))
-      selectedRollNo = new Set([...selectedRollNo].filter(rn => rn !== rollNo))
-    else selectedRollNo = new Set([...selectedRollNo, rollNo])
-  }
-
-  function deleteSelected() {
-    for (const rollNo of selectedRollNo) delete attendance[rollNo]
-    selectedRollNo = new Set([])
-  }
 
   function getPercentage(count: number, total: number): string {
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
@@ -51,6 +33,52 @@
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  let allChecked = $state(false)
+  let selectedRollNo = $state(new Set([] as string[]))
+
+  function toggleAll() {
+    selectedRollNo = allChecked ? new Set(Object.keys(attendance)) : new Set([])
+  }
+
+  function toggle(rollNo: string) {
+    selectedRollNo = selectedRollNo.has(rollNo)
+      ? new Set([...selectedRollNo].filter(rn => rn !== rollNo))
+      : new Set([...selectedRollNo, rollNo])
+  }
+
+  function deleteSelected() {
+    for (const rollNo of selectedRollNo) delete attendance[rollNo]
+    selectedRollNo = new Set([])
+    allChecked = false
+  }
+
+  let editModal: HTMLDialogElement
+  let oldRollNo = ''
+  let editRollNo = $state('')
+  let editAuto = $state(false)
+  let editReason = $state('')
+  let rollNoValid = $derived(editRollNo.match(rollRegex.value) !== null)
+
+  function editOpen(rollNo: string) {
+    oldRollNo = rollNo
+    editRollNo = rollNo
+    editAuto = attendance[rollNo].auto
+    editReason = attendance[rollNo].reason || 'no id card'
+
+    editModal.showModal()
+  }
+
+  function editSave() {
+    attendance[editRollNo] = {
+      auto: editAuto,
+      reason: editAuto ? '' : editReason
+    }
+
+    if (oldRollNo !== editRollNo) delete attendance[oldRollNo]
+
+    editModal.close()
   }
 </script>
 
@@ -122,6 +150,9 @@
             <td>
               <button
                 class="btn btn-xs btn-accent btn-square transform transition-transform duration-300 hover:scale-110"
+                onclick={() => {
+                  editOpen(rollNo)
+                }}
               >
                 <Icon icon="tabler:edit" class="h-4 w-4" />
               </button>
@@ -139,4 +170,65 @@
       <Icon icon="mingcute:delete-line" class="h-4 w-4" onclick={deleteSelected} />
     </button>
   {/if}
+
+  <dialog bind:this={editModal} class="modal modal-bottom">
+    <div class="modal-box">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+      </form>
+
+      <h3 class="text-lg font-bold">Edit Student Details</h3>
+
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Roll Number</legend>
+        <input
+          bind:value={editRollNo}
+          type="text"
+          class="input w-full"
+          placeholder="Enter Roll No"
+        />
+        <span class="text-error font-bold" class:invisible={rollNoValid}>
+          Invalid Roll No! Fix Regex?
+        </span>
+
+        <legend class="fieldset-legend">Auto</legend>
+        <input bind:checked={editAuto} type="checkbox" class="toggle" />
+
+        {#if !editAuto}
+          <legend class="fieldset-legend">Reason</legend>
+          <div class="flex items-center gap-x-2">
+            <input
+              bind:group={editReason}
+              type="radio"
+              name="reason-radio"
+              class="radio"
+              value="no id card"
+            />
+            <span>ID card unavailable</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input
+              bind:group={editReason}
+              type="radio"
+              name="reason-radio"
+              class="radio"
+              value="not scanable"
+            />
+            <span>ID card available</span>
+          </div>
+        {/if}
+      </fieldset>
+
+      <form method="dialog" class="mt-4">
+        <button class="btn btn-primary w-full" class:btn-disabled={!rollNoValid} onclick={editSave}>
+          <Icon icon="mdi:content-save" class="h-6 w-6" />
+          <span class="mt-0.5">Save</span>
+        </button>
+      </form>
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
 </div>
