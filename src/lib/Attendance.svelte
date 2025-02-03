@@ -54,10 +54,13 @@
         Manual: {manualCount} ({getPercentage(manualCount, totalCount)}%)
       </div>
     </div>
-    <div class="stat">
+    <div class="stat place-items-center">
       <div class="stat-title">Export</div>
       <div class="stat-actions">
-        <button class="btn btn-xs btn-success" onclick={downloadCSV}>Download CSV</button>
+        <button class="btn btn-xs btn-success" onclick={downloadCSV}>
+          <Icon icon="fa6-solid:download" class="h-3 w-3" />
+          <span class="mt-1">CSV</span>
+        </button>
       </div>
     </div>
   </div>

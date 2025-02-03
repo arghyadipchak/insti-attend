@@ -3,6 +3,7 @@
   import Attendance from './lib/Attendance.svelte'
   import Dock from './lib/Dock.svelte'
   import Navbar from './lib/Navbar.svelte'
+  import NoCamera from './lib/NoCamera.svelte'
   import Scanner from './lib/Scanner.svelte'
   import Settings from './lib/Settings.svelte'
   import {
@@ -53,7 +54,11 @@
   <Navbar />
 
   {#if $selectedComponent === 'scanner'}
-    <Scanner />
+    {#if $devices.length > 0}
+      <Scanner />
+    {:else}
+      <NoCamera />
+    {/if}
   {:else if $selectedComponent === 'attendance'}
     <Attendance />
   {:else if $selectedComponent === 'settings'}

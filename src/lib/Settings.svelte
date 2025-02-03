@@ -67,8 +67,8 @@
     />
 
     <button class="btn btn-primary" onclick={() => rollRegex.set(localRollRegex)}>
-      <Icon icon="mdi:content-save" height="1.2rem" />
-      <span>Save</span>
+      <Icon icon="mdi:content-save" class="h-6 w-6" />
+      <span class="mt-0.5">Save</span>
     </button>
   </fieldset>
 

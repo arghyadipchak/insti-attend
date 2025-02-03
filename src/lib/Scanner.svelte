@@ -146,8 +146,8 @@
   <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
   <button class="btn bg-primary text-primary-content" onclick={manualOpen}>
-    <Icon icon="mdi:pen" height="1.2rem" />
-    Take Manual Entry
+    <Icon icon="mdi:pen" class="h-5 w-5" />
+    <span class="mt-0.5">Manual Entry</span>
   </button>
 
   <dialog bind:this={autoModal} class="modal modal-bottom" onclose={autoClose}>

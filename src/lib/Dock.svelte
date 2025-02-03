@@ -8,7 +8,7 @@
     class:dock-active={$selectedComponent === 'scanner'}
     onclick={() => selectedComponent.set('scanner')}
   >
-    <Icon icon="mdi:credit-card-scan" width="1.5rem" height="1.5rem" />
+    <Icon icon="mdi:credit-card-scan" class="h-6 w-6" />
     <span class="dock-label">Scan ID</span>
   </button>
 
@@ -17,7 +17,7 @@
     onclick={() => selectedComponent.set('attendance')}
   >
     <div class="indicator">
-      <Icon icon="ph:student" width="1.5rem" height="1.5rem" />
+      <Icon icon="ph:student" class="h-6 w-6" />
       <span class="badge badge-sm indicator-item bg-accent text-accent-content mt-1">20</span>
     </div>
     <span class="dock-label">Attendance</span>
@@ -27,7 +27,7 @@
     class:dock-active={$selectedComponent === 'settings'}
     onclick={() => selectedComponent.set('settings')}
   >
-    <Icon icon="solar:settings-outline" width="1.5rem" height="1.5rem" />
+    <Icon icon="solar:settings-outline" class="h-6 w-6" />
     <span class="dock-label">Settings</span>
   </button>
 </nav>
