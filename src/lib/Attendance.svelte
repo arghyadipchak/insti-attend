@@ -6,6 +6,24 @@
   let autoCount = $derived(Object.keys(attendance).filter(id => attendance[id].auto).length)
   let manualCount = $derived(totalCount - autoCount)
 
+  let allChecked = $state(false)
+  let selectedRollNo = $state(new Set([] as string[]))
+
+  function toggleAll() {
+    selectedRollNo = allChecked ? new Set(Object.keys(attendance)) : new Set([])
+  }
+
+  function toggle(rollNo: string) {
+    if (selectedRollNo.has(rollNo))
+      selectedRollNo = new Set([...selectedRollNo].filter(rn => rn !== rollNo))
+    else selectedRollNo = new Set([...selectedRollNo, rollNo])
+  }
+
+  function deleteSelected() {
+    for (const rollNo of selectedRollNo) delete attendance[rollNo]
+    selectedRollNo = new Set([])
+  }
+
   function getPercentage(count: number, total: number): string {
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
   }
@@ -51,7 +69,10 @@
     <div class="stat place-items-center">
       <div class="stat-title">Export</div>
       <div class="stat-actions">
-        <button class="btn btn-xs btn-success" onclick={downloadCSV}>
+        <button
+          class="btn btn-xs btn-success transform transition-transform duration-300 ease-in-out hover:scale-110"
+          onclick={downloadCSV}
+        >
           <Icon icon="fa6-solid:download" class="h-3 w-3" />
           <span class="mt-1">CSV</span>
         </button>
@@ -65,7 +86,12 @@
         <tr>
           <th>
             <label>
-              <input type="checkbox" class="checkbox checkbox-xs" />
+              <input
+                bind:checked={allChecked}
+                type="checkbox"
+                class="checkbox checkbox-xs"
+                onchange={toggleAll}
+              />
             </label>
           </th>
           <th>Roll No</th>
@@ -80,14 +106,23 @@
           <tr>
             <th>
               <label>
-                <input type="checkbox" class="checkbox checkbox-xs" />
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-xs"
+                  checked={selectedRollNo.has(rollNo)}
+                  onchange={() => {
+                    toggle(rollNo)
+                  }}
+                />
               </label>
             </th>
             <td>{rollNo}</td>
             <td>{record.auto ? 'Yes' : 'No'}</td>
             <td>{record.reason ? record.reason : '-'}</td>
             <td>
-              <button class="btn btn-xs btn-accent btn-square">
+              <button
+                class="btn btn-xs btn-accent btn-square transform transition-transform duration-300 hover:scale-110"
+              >
                 <Icon icon="tabler:edit" class="h-4 w-4" />
               </button>
             </td>
@@ -97,7 +132,11 @@
     </table>
   </div>
 
-  <button class="btn btn-sm btn-error btn-square fixed bottom-20">
-    <Icon icon="mingcute:delete-line" class="h-4 w-4" />
-  </button>
+  {#if selectedRollNo.size > 0}
+    <button
+      class="btn btn-sm btn-error btn-square fixed bottom-20 transform transition-transform duration-300 ease-in-out hover:scale-110"
+    >
+      <Icon icon="mingcute:delete-line" class="h-4 w-4" onclick={deleteSelected} />
+    </button>
+  {/if}
 </div>

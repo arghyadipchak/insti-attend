@@ -132,7 +132,10 @@
 
   <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
-  <button class="btn bg-primary text-primary-content" onclick={manualOpen}>
+  <button
+    class="btn bg-primary text-primary-content transform transition-transform duration-300 ease-in-out hover:scale-110"
+    onclick={manualOpen}
+  >
     <Icon icon="mdi:pen" class="h-5 w-5" />
     <span class="mt-0.5">Manual Entry</span>
   </button>
@@ -165,7 +168,7 @@
 
       <fieldset class="fieldset">
         <legend class="fieldset-legend">Roll Number</legend>
-        <input bind:value={rollNo} type="text" class="input w-full" placeholder="Type here" />
+        <input bind:value={rollNo} type="text" class="input w-full" placeholder="Enter Roll No" />
         <span class="text-error font-bold" class:invisible={rollNoValid}>
           Invalid Roll No! Fix Regex?
         </span>
