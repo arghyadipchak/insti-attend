@@ -8,42 +8,48 @@
   import Settings from './lib/Settings.svelte'
   import {
     attendance,
+    component,
     devices,
     fps,
     rollRegex,
-    selectedComponent,
-    selectedDeviceId
-  } from './lib/store'
+    selectedDevice
+  } from './lib/shared.svelte'
 
-  onMount(async () => {
-    await getCameraDevices()
-
-    let storedDeviceId = localStorage.getItem('deviceId')
-    if ($devices.length > 0) {
-      if (storedDeviceId && $devices.find(device => device.deviceId === storedDeviceId))
-        selectedDeviceId.set(storedDeviceId)
-      else selectedDeviceId.set($devices[0].deviceId)
-    }
-
-    let storedFps = localStorage.getItem('fps')
-    if (storedFps) fps.set(Number(storedFps))
-
-    let storedRollRegex = localStorage.getItem('rollRegex')
-    if (storedRollRegex) rollRegex.set(storedRollRegex)
-
-    let storedAttendance = localStorage.getItem('attendance')
-    if (storedAttendance) attendance.set(JSON.parse(storedAttendance))
-
-    selectedDeviceId.subscribe(value => localStorage.setItem('deviceId', value))
-    fps.subscribe(value => localStorage.setItem('fps', value.toString()))
-    rollRegex.subscribe(value => localStorage.setItem('rollRegex', value))
-    attendance.subscribe(value => localStorage.setItem('attendance', JSON.stringify(value)))
+  $effect(() => {
+    localStorage.setItem('selectedDevice', selectedDevice.id)
   })
+
+  $effect(() => {
+    localStorage.setItem('fps', fps.value.toString())
+  })
+
+  $effect(() => {
+    localStorage.setItem('rollRegex', rollRegex.value)
+  })
+
+  $effect(() => {
+    localStorage.setItem('attendance', JSON.stringify(attendance))
+  })
+
+  onMount(getCameraDevices)
 
   async function getCameraDevices() {
     try {
-      let mediaDevices = await navigator.mediaDevices.enumerateDevices()
-      devices.set(mediaDevices.filter(device => device.kind === 'videoinput'))
+      const mediaDevices = await navigator.mediaDevices.enumerateDevices()
+      const videoDevices = mediaDevices.filter(device => device.kind === 'videoinput')
+      const storedDeviceId = localStorage.getItem('deviceSelected')
+
+      if (videoDevices.length == 0) return
+
+      if (storedDeviceId && videoDevices.find(device => device.deviceId === storedDeviceId))
+        selectedDevice.id = storedDeviceId
+      else selectedDevice.id = videoDevices[0].deviceId
+
+      videoDevices.forEach(
+        device =>
+          (devices.label[device.deviceId] =
+            device.label || `Camera ${videoDevices.indexOf(device) + 1}`)
+      )
     } catch (err) {
       console.error('Error fetching camera devices:', err)
     }
@@ -53,15 +59,15 @@
 <main class="flex h-screen flex-col">
   <Navbar />
 
-  {#if $selectedComponent === 'scanner'}
-    {#if $devices.length > 0}
+  {#if component.selected === 'scanner'}
+    {#if Object.keys(devices.label).length > 0}
       <Scanner />
     {:else}
       <NoCamera />
     {/if}
-  {:else if $selectedComponent === 'attendance'}
+  {:else if component.selected === 'attendance'}
     <Attendance />
-  {:else if $selectedComponent === 'settings'}
+  {:else if component.selected === 'settings'}
     <Settings />
   {/if}
 

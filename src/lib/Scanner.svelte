@@ -2,7 +2,7 @@
   import Icon from '@iconify/svelte'
   import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
-  import { attendance, fps, rollRegex, selectedDeviceId } from './store'
+  import { attendance, fps, rollRegex, selectedDevice } from './shared.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -11,7 +11,7 @@
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
 
-  let rollRegExp = $derived(new RegExp($rollRegex, 'g'))
+  let rollRegExp = $derived(new RegExp(rollRegex.value, 'g'))
   let rollNo = $state('')
   let rollNoValid = $derived(!rollNo || rollRegExp.test(rollNo))
   let manualReason = $state('no id card')
@@ -20,7 +20,7 @@
   let manualModal: HTMLDialogElement
 
   $effect(() => {
-    if ($selectedDeviceId) startCamera()
+    if (selectedDevice.id) startCamera()
   })
 
   window.addEventListener('resize', resizeOffscreenCanvas)
@@ -34,7 +34,7 @@
 
   function startInterval() {
     if (intervalId) return
-    intervalId = setInterval(decodeBarcode, 1000 / $fps)
+    intervalId = setInterval(decodeBarcode, 1000 / fps.value)
   }
 
   function stopInterval() {
@@ -55,7 +55,7 @@
 
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          deviceId: $selectedDeviceId ? { exact: $selectedDeviceId } : undefined
+          deviceId: selectedDevice.id ? { exact: selectedDevice.id } : undefined
         }
       })
 
@@ -94,31 +94,18 @@
     autoModal.showModal()
   }
 
-  function autoClose() {
-    startInterval()
-  }
-
-  function autoPresent() {
-    attendance.update(store => ({
-      ...store,
-      [rollNo]: { auto: true, reason: '' }
-    }))
-  }
-
   function manualOpen() {
     stopInterval()
+    rollNo = ''
     manualModal.showModal()
   }
 
-  function manualClose() {
-    startInterval()
+  function autoPresent() {
+    attendance[rollNo] = { auto: true, reason: '' }
   }
 
   function manualPresent() {
-    attendance.update(store => ({
-      ...store,
-      [rollNo]: { auto: false, reason: manualReason }
-    }))
+    attendance[rollNo] = { auto: false, reason: manualReason }
   }
 </script>
 
@@ -150,7 +137,7 @@
     <span class="mt-0.5">Manual Entry</span>
   </button>
 
-  <dialog bind:this={autoModal} class="modal modal-bottom" onclose={autoClose}>
+  <dialog bind:this={autoModal} class="modal modal-bottom" onclose={startInterval}>
     <div class="modal-box items-center gap-y-4">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
@@ -168,7 +155,7 @@
     </form>
   </dialog>
 
-  <dialog bind:this={manualModal} class="modal modal-bottom" onclose={manualClose}>
+  <dialog bind:this={manualModal} class="modal modal-bottom" onclose={startInterval}>
     <div class="modal-box">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>

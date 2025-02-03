@@ -1,12 +1,12 @@
 <script>
   import Icon from '@iconify/svelte'
-  import { devices, fps, rollRegex, selectedDeviceId } from './store'
+  import { devices, fps, rollRegex, selectedDevice } from './shared.svelte'
 
   const fpsMax = 60
   const fpsStep = 10
   const fpsValues = Array.from({ length: fpsMax / fpsStep }, (_, i) => (i + 1) * fpsStep)
 
-  let localRollRegex = $rollRegex
+  let localRollRegex = rollRegex.value
 </script>
 
 <div class="flex flex-1 flex-col items-center gap-y-4">
@@ -17,12 +17,10 @@
       <label for="camera-select" class="label">
         <span class="label-text">Pick a camera</span>
       </label>
-      <select id="camera-select" class="select" bind:value={$selectedDeviceId}>
+      <select id="camera-select" class="select" bind:value={selectedDevice.id}>
         <option disabled>Pick a camera</option>
-        {#each $devices as device}
-          <option value={device.deviceId}>
-            {device.label || `Camera ${$devices.indexOf(device) + 1}`}
-          </option>
+        {#each Object.entries(devices.label) as [deviceId, deviceLabel]}
+          <option value={deviceId}>{deviceLabel}</option>
         {/each}
       </select>
     </div>
@@ -38,7 +36,7 @@
         max={fpsMax}
         class="range"
         step={fpsStep}
-        bind:value={$fps}
+        bind:value={fps.value}
       />
       <div class="flex justify-between pl-1.5 text-xs">
         {#each fpsValues as value}
@@ -66,7 +64,7 @@
       bind:value={localRollRegex}
     />
 
-    <button class="btn btn-primary" onclick={() => rollRegex.set(localRollRegex)}>
+    <button class="btn btn-primary" onclick={() => (rollRegex.value = localRollRegex)}>
       <Icon icon="mdi:content-save" class="h-6 w-6" />
       <span class="mt-0.5">Save</span>
     </button>

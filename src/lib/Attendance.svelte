@@ -1,16 +1,10 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance } from './store'
+  import { attendance } from './shared.svelte'
 
-  let totalCount = 0
-  let autoCount = 0
-  let manualCount = 0
-
-  attendance.subscribe(value => {
-    totalCount = Object.keys(value).length
-    autoCount = Object.values(value).filter(v => v.auto).length
-    manualCount = totalCount - autoCount
-  })
+  let totalCount = $derived(Object.keys(attendance).length)
+  let autoCount = $derived(Object.keys(attendance).filter(id => attendance[id].auto).length)
+  let manualCount = $derived(totalCount - autoCount)
 
   function getPercentage(count: number, total: number): string {
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
@@ -19,7 +13,7 @@
   function convertToCSV() {
     let str = 'rollNo,auto,reason\n'
 
-    for (const [rollNo, record] of Object.entries($attendance)) {
+    for (const [rollNo, record] of Object.entries(attendance)) {
       str += `${rollNo},${record.auto},${record.reason}\n`
     }
 
@@ -82,7 +76,7 @@
       </thead>
 
       <tbody>
-        {#each Object.entries($attendance) as [rollNo, record]}
+        {#each Object.entries(attendance) as [rollNo, record]}
           <tr>
             <th>
               <label>
