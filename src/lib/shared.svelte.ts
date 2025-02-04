@@ -6,7 +6,7 @@ export let component = $state<ComponentType>({ selected: 'scanner' })
 export let devices = $state({
   label: {} as Record<string, string>
 })
-export let selectedDevice = $state({ id: '' })
+export let selectedDevice = $state({ id: localStorage.getItem('deviceId') || '' })
 
 export let fps = $state({ value: Number(localStorage.getItem('fps') || '60') })
 

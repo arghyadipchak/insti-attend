@@ -16,7 +16,7 @@
   } from './lib/shared.svelte'
 
   $effect(() => {
-    localStorage.setItem('selectedDevice', selectedDevice.id)
+    localStorage.setItem('deviceId', selectedDevice.id)
   })
 
   $effect(() => {
@@ -35,15 +35,17 @@
 
   async function getCameraDevices() {
     try {
+      await navigator.mediaDevices.getUserMedia({ video: true })
+
       const mediaDevices = await navigator.mediaDevices.enumerateDevices()
       const videoDevices = mediaDevices.filter(device => device.kind === 'videoinput')
-      const storedDeviceId = localStorage.getItem('deviceSelected')
 
       if (videoDevices.length == 0) return
 
-      if (storedDeviceId && videoDevices.find(device => device.deviceId === storedDeviceId))
-        selectedDevice.id = storedDeviceId
-      else selectedDevice.id = videoDevices[0].deviceId
+      if (
+        !(selectedDevice.id && videoDevices.find(device => device.deviceId === selectedDevice.id))
+      )
+        selectedDevice.id = videoDevices[0].deviceId
 
       videoDevices.forEach(
         device =>
