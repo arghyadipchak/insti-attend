@@ -1,0 +1,12 @@
+{
+  "short_name": "InstiAttend",
+  "name": "Insti Attend - IIT Bombay",
+  "icons": [
+    {
+      "src": "vite.svg"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "portrait"
+}
