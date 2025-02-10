@@ -100,11 +100,11 @@
   }
 
   function autoPresent() {
-    attendance[rollNo] = { auto: true, reason: '' }
+    attendance[rollNo] = { timestamp: new Date(), auto: true, reason: '' }
   }
 
   function manualPresent() {
-    attendance[rollNo] = { auto: false, reason: manualReason }
+    attendance[rollNo] = { timestamp: new Date(), auto: false, reason: manualReason }
   }
 </script>
 

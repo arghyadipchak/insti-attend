@@ -11,10 +11,10 @@
   }
 
   function convertToCSV() {
-    let str = 'rollNo,auto,reason\n'
+    let str = 'rollNo,timestamp,auto,reason\n'
 
     for (const [rollNo, record] of Object.entries(attendance)) {
-      str += `${rollNo},${record.auto},${record.reason}\n`
+      str += `${rollNo},${record.timestamp.toISOString()},${record.auto},${record.reason}\n`
     }
 
     return str
@@ -31,7 +31,7 @@
 
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', 'attendance.json')
+    link.setAttribute('download', `attendance-${new Date().toISOString()}.${type}`)
     link.style.visibility = 'hidden'
 
     document.body.appendChild(link)
@@ -76,6 +76,7 @@
 
   function editSave() {
     attendance[editRollNo] = {
+      timestamp: new Date(),
       auto: editAuto,
       reason: editAuto ? '' : editReason
     }
