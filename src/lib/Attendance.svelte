@@ -20,14 +20,18 @@
     return str
   }
 
-  function downloadCSV() {
-    const csv = convertToCSV()
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  function download(type: 'csv' | 'json') {
+    const blob =
+      type === 'csv'
+        ? new Blob([convertToCSV()], { type: 'text/csv;charset=utf-8;' })
+        : new Blob([JSON.stringify(attendance, null, 2)], {
+            type: 'application/json;charset=utf-8;'
+          })
     const url = URL.createObjectURL(blob)
 
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', 'attendance.csv')
+    link.setAttribute('download', 'attendance.json')
     link.style.visibility = 'hidden'
 
     document.body.appendChild(link)
@@ -99,10 +103,17 @@
       <div class="stat-actions">
         <button
           class="btn btn-xs btn-success transform transition-transform duration-300 ease-in-out hover:scale-110"
-          onclick={downloadCSV}
+          onclick={() => download('csv')}
         >
           <Icon icon="fa6-solid:download" class="h-3 w-3" />
           <span class="mt-1">CSV</span>
+        </button>
+        <button
+          class="btn btn-xs btn-success transform transition-transform duration-300 ease-in-out hover:scale-110"
+          onclick={() => download('json')}
+        >
+          <Icon icon="fa6-solid:download" class="h-3 w-3" />
+          <span class="mt-1">JSON</span>
         </button>
       </div>
     </div>
