@@ -1,4 +1,5 @@
 <script>
+  import Icon from '@iconify/svelte'
   import { devices, fps, rollRegex, selectedDevice } from './shared.svelte'
 
   const fpsMax = 60
@@ -8,7 +9,7 @@
   let localRollRegex = rollRegex.value
 </script>
 
-<div class="flex flex-1 flex-col items-center gap-y-4">
+<div class="flex flex-1 flex-col items-center gap-y-4 py-4">
   <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs gap-y-4 border p-4">
     <legend class="fieldset-legend">Camera</legend>
 
@@ -97,4 +98,10 @@
       />
     </div>
   </fieldset>
+
+  <span class="mt-auto flex gap-x-1">
+    Made with
+    <Icon icon="mdi:heart" class="mt-1 text-red-500" />
+    by Arghyadip & Debojeet</span
+  >
 </div>
