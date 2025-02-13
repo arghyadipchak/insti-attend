@@ -1,5 +1,4 @@
 <script>
-  import Icon from '@iconify/svelte'
   import { devices, fps, rollRegex, selectedDevice } from './shared.svelte'
 
   const fpsMax = 60
@@ -56,18 +55,18 @@
       <span class="label-text">Roll Regex</span>
     </label>
 
-    <input
-      id="roll-regex"
-      type="text"
-      placeholder="Enter Roll Regex"
-      class="input"
-      bind:value={localRollRegex}
-    />
-
-    <button class="btn btn-primary" onclick={() => (rollRegex.value = localRollRegex)}>
-      <Icon icon="mdi:content-save" class="h-6 w-6" />
-      <span class="mt-0.5">Save</span>
-    </button>
+    <div class="join">
+      <input
+        id="roll-regex"
+        type="text"
+        class="input join-item"
+        placeholder="Enter Roll Regex"
+        bind:value={localRollRegex}
+      />
+      <button class="btn btn-primary join-item" onclick={() => (rollRegex.value = localRollRegex)}>
+        Save
+      </button>
+    </div>
   </fieldset>
 
   <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">

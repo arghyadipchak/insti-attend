@@ -15,7 +15,7 @@
   let manualModal: HTMLDialogElement
 
   let rollNo = $state('')
-  let manualReason = $state('no id card')
+  let manualReason = $state('no_id_card')
   let rollNoValid = $derived(!rollNo || rollNo.match(rollRegex.value) !== null)
 
   $effect(() => {
@@ -179,9 +179,9 @@
             type="radio"
             name="reason-radio"
             class="radio"
-            value="no id card"
+            value="no_id_card"
           />
-          <span>ID card unavailable</span>
+          <span>ID Card Unavailable</span>
         </div>
         <div class="flex items-center space-x-2">
           <input
@@ -189,9 +189,9 @@
             type="radio"
             name="reason-radio"
             class="radio"
-            value="not scanable"
+            value="not_scannable"
           />
-          <span>ID card available</span>
+          <span>ID Card Not Scannable</span>
         </div>
       </fieldset>
 
