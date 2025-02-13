@@ -110,7 +110,7 @@
 
 <div class="bg-base-300 flex flex-1 flex-col items-center justify-center gap-y-10">
   <div class="relative w-full max-w-md">
-    <video bind:this={videoElement} class="h-full w-full p-8" autoplay>
+    <video bind:this={videoElement} class="h-full w-full p-8" autoplay playsinline>
       <track kind="captions" />
     </video>
     <div class="pointer-events-none absolute inset-0 m-10 flex items-center justify-between">
