@@ -45,7 +45,11 @@
       if (
         !(selectedDevice.id && videoDevices.find(device => device.deviceId === selectedDevice.id))
       )
-        selectedDevice.id = videoDevices[0].deviceId
+        selectedDevice.id =
+          videoDevices.find(device => device.label.toLowerCase().includes('back'))?.deviceId ||
+          videoDevices[0].deviceId
+
+      console.log(videoDevices.find(device => device.label.toLowerCase().includes('Camera')))
 
       videoDevices.forEach(
         device =>
