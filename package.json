@@ -13,17 +13,17 @@
   "dependencies": {
     "@iconify/svelte": "^4.2.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
-    "@tailwindcss/vite": "^4.0.6",
+    "@tailwindcss/vite": "^4.0.8",
     "@tsconfig/svelte": "^5.0.4",
     "daisyui": "5.0.0-beta.6",
     "rxing-wasm": "^0.3.6",
-    "svelte": "^5.19.10",
-    "tailwindcss": "^4.0.6",
-    "vite": "^6.1.0",
+    "svelte": "^5.20.4",
+    "tailwindcss": "^4.0.8",
+    "vite": "^6.1.1",
     "vite-plugin-wasm": "^3.4.1"
   },
   "devDependencies": {
-    "prettier": "^3.5.0",
+    "prettier": "^3.5.2",
     "prettier-plugin-svelte": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "svelte-check": "^4.1.4",
