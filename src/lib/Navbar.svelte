@@ -13,7 +13,5 @@
     <a href="https://github.com/arghyadipchak/insti-attend" class="btn btn-ghost">
       <Icon icon="akar-icons:github-fill" class="h-5 w-5" />
     </a>
-
-    <!-- TA Profile -->
   </div>
 </nav>

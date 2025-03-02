@@ -1,6 +1,26 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance, rollRegex, showAlert, webhook } from './shared.svelte'
+  import { attendance, rollRegex, webhook } from './shared.svelte'
+
+  interface Alert {
+    type: 'download' | 'webhook-success' | 'webhook-error'
+    text: string
+    subtext?: string
+  }
+
+  let alerts = $state<Record<string, Alert>>({})
+  let alertCount = 0
+  const alertDuration = 5000
+
+  function removeAlert(id: string) {
+    delete alerts[id]
+  }
+
+  function showAlert(type: Alert['type'], text: string, subtext?: string) {
+    const alertId = (alertCount++).toString()
+    alerts[alertId] = { type, text, subtext }
+    setTimeout(() => removeAlert(alertId), alertDuration)
+  }
 
   let totalCount = $derived(Object.keys(attendance).length)
   let autoCount = $derived(Object.keys(attendance).filter(id => attendance[id].auto).length)
@@ -13,7 +33,7 @@
   function convertToCSV() {
     let str = 'rollNo,timestamp,auto,reason\n'
     for (const [rollNo, record] of Object.entries(attendance)) {
-      str += `${rollNo},${record.timestamp.toISOString()},${record.auto},${record.reason}\n`
+      str += `${rollNo},${new Date(record.timestamp).toLocaleString()},${record.auto},${record.reason}\n`
     }
     return str
   }
@@ -273,4 +293,46 @@
       <button>close</button>
     </form>
   </dialog>
+</div>
+
+<div class="toast toast-top toast-center">
+  {#each Object.entries(alerts) as [id, alert]}
+    {#if alert.type === 'download'}
+      <div role="alert" class="alert alert-success gap-x-2">
+        <Icon icon="fa6-solid:download" class="h-5 w-5" />
+        <span>
+          {alert.text}
+          {#if alert.subtext}
+            <br />
+            <span class="text-xs">{alert.subtext}</span>
+          {/if}
+        </span>
+        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
+      </div>
+    {:else if alert.type === 'webhook-success'}
+      <div role="alert" class="alert alert-success gap-x-2">
+        <Icon icon="fa-solid:sync-alt" class="h-5 w-5" />
+        <span>
+          {alert.text}
+          {#if alert.subtext}
+            <br />
+            <span class="text-xs">{alert.subtext}</span>
+          {/if}
+        </span>
+        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
+      </div>
+    {:else if alert.type === 'webhook-error'}
+      <div role="alert" class="alert alert-error gap-x-2">
+        <Icon icon="mingcute:alert-line" class="h-5 w-5" />
+        <span>
+          {alert.text}
+          {#if alert.subtext}
+            <br />
+            <span class="text-xs">{alert.subtext}</span>
+          {/if}
+        </span>
+        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
+      </div>
+    {/if}
+  {/each}
 </div>

@@ -1,22 +1,22 @@
 interface ComponentType {
   selected: 'scanner' | 'attendance' | 'settings'
 }
-export let component = $state<ComponentType>({ selected: 'scanner' })
+export const component = $state<ComponentType>({ selected: 'scanner' })
 
-export let devices = $state({
+export const devices = $state({
   label: {} as Record<string, string>
 })
-export let selectedDevice = $state({ id: localStorage.getItem('deviceId') || '' })
+export const selectedDevice = $state({ id: localStorage.getItem('deviceId') || '' })
 
-export let fps = $state({ value: Number(localStorage.getItem('fps') || '60') })
+export const fps = $state({ value: Number(localStorage.getItem('fps') || '60') })
 
-export let rollRegex = $state({ value: localStorage.getItem('rollRegex') || '' })
+export const rollRegex = $state({ value: localStorage.getItem('rollRegex') || '' })
 
 interface WebHook {
   url: string
   authToken: string
 }
-export let webhook = $state<WebHook>(JSON.parse(localStorage.getItem('webhook') || '{}'))
+export const webhook = $state<WebHook>(JSON.parse(localStorage.getItem('webhook') || '{}'))
 
 interface AttendanceRecord {
   timestamp: Date
@@ -28,3 +28,23 @@ export const attendance = $state<Record<string, AttendanceRecord>>(
     return key === 'timestamp' && typeof value === 'string' ? new Date(value) : value
   })
 )
+
+interface Alert {
+  type: 'settings' | 'download' | 'webhook-success' | 'webhook-error'
+  text: string
+  subtext?: string
+}
+export const alerts = $state<Record<string, Alert>>({})
+
+let alertCount = 0
+const alertDuration = 3000
+
+export function removeAlert(id: string) {
+  delete alerts[id]
+}
+
+export function showAlert(type: Alert['type'], text: string, subtext?: string) {
+  const alertId = (alertCount++).toString()
+  alerts[alertId] = { type, text, subtext }
+  setTimeout(() => removeAlert(alertId), alertDuration)
+}

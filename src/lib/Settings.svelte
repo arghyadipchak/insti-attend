@@ -1,26 +1,37 @@
 <script>
   import Icon from '@iconify/svelte'
-  import { devices, fps, rollRegex, selectedDevice, webhook } from './shared.svelte'
+  import { devices, fps, rollRegex, selectedDevice, showAlert, webhook } from './shared.svelte'
 
   const fpsMax = 60
   const fpsStep = 10
   const fpsValues = Array.from({ length: fpsMax / fpsStep }, (_, i) => (i + 1) * fpsStep)
+
+  const urlPattern =
+    import.meta.env.MODE === 'development'
+      ? '^(https?://)?(localhost|([a-zA-Z0-9]([a-zA-Z0-9\\-].*[a-zA-Z0-9])?\\.)+[a-zA-Z]).*$'
+      : '^(https?://)?([a-zA-Z0-9]([a-zA-Z0-9\\-].*[a-zA-Z0-9])?\\.)+[a-zA-Z].*$'
 
   let localRollRegex = rollRegex.value
   let localWebhookUrl = webhook.url
   let localWebhookToken = webhook.authToken
 
   function saveRollRegex() {
-    localRollRegex !== rollRegex.value && (rollRegex.value = localRollRegex)
+    if (localRollRegex === rollRegex.value) return
+
+    rollRegex.value = localRollRegex
+    showAlert('settings', 'Roll Regex Saved!')
   }
 
   function saveWebhook() {
-    localWebhookUrl !== webhook.url && (webhook.url = localWebhookUrl)
-    localWebhookToken !== webhook.authToken && (webhook.authToken = localWebhookToken)
+    if (localWebhookUrl === webhook.url && localWebhookToken === webhook.authToken) return
+
+    webhook.url = localWebhookUrl
+    webhook.authToken = localWebhookToken
+    showAlert('settings', 'WebHook Saved!')
   }
 </script>
 
-<div class="flex flex-1 flex-col items-center gap-y-4 py-4">
+<div class="flex flex-1 flex-col items-center gap-y-4 overflow-x-auto py-4">
   <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs gap-y-4 border p-4">
     <legend class="fieldset-legend">Camera</legend>
 
@@ -117,24 +128,12 @@
         <span class="label-text">URL</span>
       </label>
       <label class="input validator">
-        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <g
-            stroke-linejoin="round"
-            stroke-linecap="round"
-            stroke-width="2.5"
-            fill="none"
-            stroke="currentColor"
-          >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-          </g>
-        </svg>
+        <Icon icon="meteor-icons:link" />
         <input
           id="webhook-url"
           type="url"
-          required
           placeholder="https://"
-          pattern="^(https?://)?([a-zA-Z0-9]([a-zA-Z0-9\-].*[a-zA-Z0-9])?\.)+[a-zA-Z].*$"
+          pattern={urlPattern}
           bind:value={localWebhookUrl}
         />
       </label>
@@ -142,17 +141,14 @@
     </div>
 
     <div class="space-y-2">
-      <label for="webhook-url" class="label">
+      <label for="webhook-auth" class="label">
         <span class="label-text"> Authorization </span>
         <span class="badge badge-neutral badge-xs">Optional</span>
       </label>
-      <input
-        id="webhook-auth"
-        type="password"
-        class="input"
-        placeholder="Token"
-        bind:value={localWebhookToken}
-      />
+      <label class="input">
+        <Icon icon="solar:key-bold" />
+        <input id="webhook-auth" type="url" placeholder="Token" bind:value={localWebhookToken} />
+      </label>
     </div>
 
     <button class="btn bg-primary text-primary-content" onclick={saveWebhook}>
@@ -164,6 +160,6 @@
   <span class="mt-auto flex gap-x-1">
     Made with
     <Icon icon="mdi:heart" class="mt-1 text-red-500" />
-    by Arghyadip & Debojeet</span
-  >
+    by Arghyadip & Debojeet
+  </span>
 </div>
