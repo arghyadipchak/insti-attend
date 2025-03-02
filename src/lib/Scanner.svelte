@@ -16,7 +16,6 @@
 
   let rollNo = $state('')
   let manualReason = $state('no_id_card')
-  let rollNoValid = $derived(!rollNo || rollNo.match(rollRegex.value) !== null)
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
@@ -95,16 +94,17 @@
 
   function manualOpen() {
     stopInterval()
-    rollNo = ''
     manualModal.showModal()
   }
 
   function autoPresent() {
     attendance[rollNo] = { timestamp: new Date(), auto: true, reason: '' }
+    rollNo = ''
   }
 
   function manualPresent() {
     attendance[rollNo] = { timestamp: new Date(), auto: false, reason: manualReason }
+    rollNo = ''
   }
 </script>
 
@@ -167,10 +167,15 @@
 
       <fieldset class="fieldset">
         <legend class="fieldset-legend">Roll Number</legend>
-        <input bind:value={rollNo} type="text" class="input w-full" placeholder="Enter Roll No" />
-        <span class="text-error font-bold" class:invisible={rollNoValid}>
-          Invalid Roll No! Fix Regex?
-        </span>
+        <input
+          bind:value={rollNo}
+          type="text"
+          class="input validator w-full"
+          required
+          placeholder="Enter Roll No"
+          pattern={rollRegex.value}
+        />
+        <p class="validator-hint hidden">Must be valid Roll No</p>
 
         <legend class="fieldset-legend">Reason</legend>
         <div class="flex items-center gap-x-2">
@@ -198,7 +203,7 @@
       <form method="dialog">
         <button
           class="btn btn-secondary mt-4 w-full"
-          class:btn-disabled={!rollNoValid}
+          class:btn-disabled={rollNo.match(rollRegex.value) === null}
           onclick={manualPresent}
         >
           Mark Present

@@ -12,7 +12,8 @@
     devices,
     fps,
     rollRegex,
-    selectedDevice
+    selectedDevice,
+    webhook
   } from './lib/shared.svelte'
 
   $effect(() => {
@@ -25,6 +26,10 @@
 
   $effect(() => {
     localStorage.setItem('rollRegex', rollRegex.value)
+  })
+
+  $effect(() => {
+    localStorage.setItem('webhook', JSON.stringify(webhook))
   })
 
   $effect(() => {

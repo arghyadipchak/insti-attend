@@ -12,6 +12,12 @@ export let fps = $state({ value: Number(localStorage.getItem('fps') || '60') })
 
 export let rollRegex = $state({ value: localStorage.getItem('rollRegex') || '' })
 
+interface WebHook {
+  url: string
+  authToken: string
+}
+export let webhook = $state<WebHook>(JSON.parse(localStorage.getItem('webhook') || '{}'))
+
 interface AttendanceRecord {
   timestamp: Date
   auto: boolean
