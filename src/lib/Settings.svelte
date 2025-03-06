@@ -22,6 +22,29 @@
     showAlert('settings', 'Roll Regex Saved!')
   }
 
+  async function testWebhook() {
+    if (localWebhookUrl === '') return
+
+    try {
+      const response = await fetch(localWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localWebhookToken && {
+            Authorization: `Bearer ${localWebhookToken}`
+          })
+        },
+        body: '{}'
+      })
+
+      if (response.ok) showAlert('webhook-success', 'WebHook Success!')
+      else
+        showAlert('webhook-error', 'WebHook Failed!', `${response.status}: ${response.statusText}`)
+    } catch {
+      showAlert('webhook-error', 'WebHook Error!')
+    }
+  }
+
   function saveWebhook() {
     if (localWebhookUrl === webhook.url && localWebhookToken === webhook.authToken) return
 
@@ -151,10 +174,17 @@
       </label>
     </div>
 
-    <button class="btn bg-primary text-primary-content" onclick={saveWebhook}>
-      <Icon icon="mdi:content-save" class="h-5 w-5" />
-      <span class="mt-0.5">Save</span>
-    </button>
+    <div class="flex justify-evenly">
+      <button class="btn bg-primary text-primary-content" onclick={testWebhook}>
+        <Icon icon="mdi:webhook" class="h-5 w-5" />
+        <span class="mt-0.5">Test</span>
+      </button>
+
+      <button class="btn bg-primary text-primary-content" onclick={saveWebhook}>
+        <Icon icon="mdi:content-save" class="h-5 w-5" />
+        <span class="mt-0.5">Save</span>
+      </button>
+    </div>
   </fieldset>
 
   <span class="mt-auto flex gap-x-1">
