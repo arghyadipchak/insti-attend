@@ -31,7 +31,7 @@
       </div>
     {:else if alert.type === 'webhook-success'}
       <div role="alert" class="alert alert-success gap-x-2">
-        <Icon icon="fa-solid:sync-alt" class="h-5 w-5" />
+        <Icon icon="mdi:webhook" class="h-5 w-5" />
         <span>
           {alert.text}
           {#if alert.subtext}

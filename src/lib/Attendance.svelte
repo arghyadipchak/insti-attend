@@ -10,23 +10,46 @@
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
   }
 
+  const offset = -new Date().getTimezoneOffset()
+  const sign = offset >= 0 ? '+' : '-'
+
+  const pad = (num: number) => String(num).padStart(2, '0')
+  const toISOStringTZ = offset
+    ? (date: Date) => {
+        const year = date.getFullYear()
+        const month = pad(date.getMonth() + 1)
+        const day = pad(date.getDate())
+        const hours = pad(date.getHours())
+        const minutes = pad(date.getMinutes())
+        const seconds = pad(date.getSeconds())
+
+        const offsetHours = pad(Math.floor(Math.abs(offset) / 60))
+        const offsetMinutes = pad(Math.abs(offset) % 60)
+
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${offsetHours}:${offsetMinutes}`
+      }
+    : (date: Date) => date.toISOString()
+
   function convertToCSV() {
     let str = 'rollNo,timestamp,auto,reason\n'
     for (const [rollNo, record] of Object.entries(attendance)) {
-      str += `${rollNo},${record.timestamp.toISOString()},${record.auto},${record.reason}\n`
+      str += `${rollNo},${toISOStringTZ(record.timestamp)},${record.auto},${record.reason}\n`
     }
     return str
   }
+
+  const tstampReplacer = (key: string, value: any) =>
+    key === 'timestamp' ? toISOStringTZ(new Date(value)) : value
 
   function download(type: 'csv' | 'json') {
     const blob =
       type === 'csv'
         ? new Blob([convertToCSV()], { type: 'text/csv;charset=utf-8;' })
-        : new Blob([JSON.stringify(attendance, null, 2)], {
+        : new Blob([JSON.stringify(attendance, tstampReplacer, 2)], {
             type: 'application/json;charset=utf-8;'
           })
     const url = URL.createObjectURL(blob)
-    const fname = `attendance-${new Date().toISOString()}.${type}`
+    const fname = `attendance-${toISOStringTZ(new Date())}.${type}`
 
     const link = document.createElement('a')
     link.setAttribute('href', url)
@@ -50,7 +73,7 @@
             Authorization: `Bearer ${webhook.authToken}`
           })
         },
-        body: JSON.stringify(attendance)
+        body: JSON.stringify(attendance, tstampReplacer)
       })
 
       if (response.ok) showAlert('webhook-success', 'Sent to WebHook!')
