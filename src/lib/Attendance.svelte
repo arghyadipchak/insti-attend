@@ -40,7 +40,7 @@
     showAlert('download', `Downloading Attendance (${type.toUpperCase()})!`, fname)
   }
 
-  async function webhookSync() {
+  async function sendWebhook() {
     try {
       const response = await fetch(webhook.url, {
         method: 'POST',
@@ -53,13 +53,9 @@
         body: JSON.stringify(attendance)
       })
 
-      if (response.ok) showAlert('webhook-success', 'Attendance Synced Successfully!')
+      if (response.ok) showAlert('webhook-success', 'Sent to WebHook!')
       else
-        showAlert(
-          'webhook-error',
-          'Failed to Sync Attendance!',
-          `${response.status}: ${response.statusText}`
-        )
+        showAlert('webhook-error', 'WebHook Failed!', `${response.status}: ${response.statusText}`)
     } catch {
       showAlert('webhook-error', 'WebHook Error!')
     }
@@ -115,7 +111,7 @@
 
 <div class="flex flex-1 flex-col items-center justify-center gap-y-4">
   <div class="stats bg-base-200 border-base-300 w-fit border">
-    <div class="stat place-items-center">
+    <div class="stat text-center">
       <div class="stat-title">Entries</div>
       <div class="stat-value text-info">{totalCount}</div>
       <div class="stat-desc text-info">
@@ -126,8 +122,8 @@
       </div>
     </div>
 
-    <div class="stat place-items-center">
-      <div class="stat-title">Export | Sync</div>
+    <div class="stat text-center">
+      <div class="stat-title">Export</div>
       <div class="stat-actions">
         <button class="btn btn-xs btn-success" onclick={() => download('csv')}>
           <Icon icon="fa6-solid:download" class="h-3 w-3" />
@@ -140,9 +136,9 @@
       </div>
       {#if webhook.url}
         <div class="stat-actions">
-          <button class="btn btn-xs btn-success" onclick={webhookSync}>
-            <Icon icon="fa-solid:sync-alt" class="h-3 w-3" />
-            <span class="mt-1">WebHook</span>
+          <button class="btn btn-xs btn-success" onclick={sendWebhook}>
+            <Icon icon="fa6-solid:upload" class="h-3 w-3" />
+            <span class="mt-0.5">WebHook</span>
           </button>
         </div>
       {/if}

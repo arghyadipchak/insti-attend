@@ -165,7 +165,7 @@
 
     <div class="space-y-2">
       <label for="webhook-auth" class="label">
-        <span class="label-text"> Authorization </span>
+        <span class="label-text">Authorization</span>
         <span class="badge badge-neutral badge-xs">Optional</span>
       </label>
       <label class="input">
