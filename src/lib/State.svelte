@@ -1,5 +1,22 @@
 <script lang="ts">
-  import { attendance, fps, rollRegex, selectedDevice, webhook } from './shared.svelte'
+  import {
+    attendance,
+    fps,
+    rollRegex,
+    selectedDevice,
+    systemDark,
+    theme,
+    webhook
+  } from './shared.svelte'
+
+  $effect(() => {
+    localStorage.setItem('theme', theme.value)
+  })
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ev => {
+    systemDark.value = ev.matches
+    console.log(systemDark.value)
+  })
 
   $effect(() => {
     localStorage.setItem('deviceId', selectedDevice.id)

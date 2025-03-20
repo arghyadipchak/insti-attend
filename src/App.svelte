@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
 
   import { getCameraDevices } from './lib/cameraUtils'
-  import { component, devices } from './lib/shared.svelte'
+  import { component, devices, systemDark, theme } from './lib/shared.svelte'
 
   import Alert from './lib/Alert.svelte'
   import Attendance from './lib/Attendance.svelte'
@@ -18,7 +18,12 @@
 
 <State />
 
-<main class="flex h-screen flex-col">
+<main
+  class="flex h-screen flex-col"
+  data-theme={(theme.value === 'system' && systemDark.value) || theme.value === 'dark'
+    ? 'dim'
+    : 'cupcake'}
+>
   <Navbar />
 
   {#if component.selected === 'scanner'}

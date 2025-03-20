@@ -1,3 +1,15 @@
+interface Theme {
+  value: 'system' | 'light' | 'dark'
+}
+
+export const theme = $state<Theme>({
+  value: (localStorage.getItem('theme') as Theme['value'] | null) || 'system'
+})
+
+export const systemDark = $state({
+  value: window.matchMedia('(prefers-color-scheme: dark)').matches
+})
+
 interface ComponentType {
   selected: 'scanner' | 'attendance' | 'settings'
 }

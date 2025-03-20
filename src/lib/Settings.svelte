@@ -1,6 +1,14 @@
 <script>
   import Icon from '@iconify/svelte'
-  import { devices, fps, rollRegex, selectedDevice, showAlert, webhook } from './shared.svelte'
+  import {
+    devices,
+    fps,
+    rollRegex,
+    selectedDevice,
+    showAlert,
+    theme,
+    webhook
+  } from './shared.svelte'
 
   const fpsMax = 60
   const fpsStep = 10
@@ -121,24 +129,29 @@
       <input
         type="radio"
         name="theme-buttons"
-        class="btn theme-controller join-item"
+        class="btn theme-controller join-item !outline-0"
+        class:btn-primary={theme.value === 'system'}
         aria-label="System"
-        value="default"
-        checked
+        value="system"
+        bind:group={theme.value}
       />
       <input
         type="radio"
         name="theme-buttons"
-        class="btn theme-controller join-item"
+        class="btn theme-controller join-item !outline-0"
+        class:btn-primary={theme.value === 'light'}
         aria-label="Light"
-        value="cupcake"
+        value="light"
+        bind:group={theme.value}
       />
       <input
         type="radio"
         name="theme-buttons"
-        class="btn theme-controller join-item"
+        class="btn theme-controller join-item !outline-0"
+        class:btn-primary={theme.value === 'dark'}
         aria-label="Dark"
-        value="dim"
+        value="dark"
+        bind:group={theme.value}
       />
     </div>
   </fieldset>
