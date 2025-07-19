@@ -1,7 +1,8 @@
 {
   "recommendations": [
-    "svelte.svelte-vscode",
     "bradlc.vscode-tailwindcss",
-    "ms-vscode.vscode-typescript-next"
+    "ms-vscode.vscode-typescript-next",
+    "rust-lang.rust-analyzer",
+    "svelte.svelte-vscode"
   ]
 }

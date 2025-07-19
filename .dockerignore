@@ -10,12 +10,16 @@ Dockerfile
 
 pnpm-debug.log*
 
+rxing-wasm/pkg/
+rxing-wasm/target/
 node_modules/
 
 dist/
 
+rxing-wasm/.rustfmt.toml
 .prettierignore
 prettier.config.js
 
+Makefile
 LICENSE
 README.md

@@ -3,7 +3,7 @@
   "name": "Insti Attend - IIT Bombay",
   "icons": [
     {
-      "src": "vite.svg"
+      "src": "logo.png"
     }
   ],
   "start_url": "/",

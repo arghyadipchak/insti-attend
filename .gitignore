@@ -1,12 +1,11 @@
-# Editor directories and files
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
 
-# Logs
 pnpm-debug.log*
 
-# Dependencies
+rxing-wasm/pkg/
+rxing-wasm/target/
 node_modules/
 
 dist/

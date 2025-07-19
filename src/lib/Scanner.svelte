@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { convert_imagedata_to_luma, decode_barcode } from 'rxing-wasm'
+  import { decode_barcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
   import { attendance, fps, rollRegex, selectedDevice } from './shared.svelte'
 
@@ -73,18 +73,21 @@
   }
 
   function decodeBarcode() {
+    if (!videoElement || videoElement.readyState < 2 || videoElement.videoWidth === 0) return
+
+    if (
+      offscreen.width !== videoElement.videoWidth ||
+      offscreen.height !== videoElement.videoHeight
+    )
+      resizeOffscreenCanvas()
+
     ctx.drawImage(videoElement, 0, 0)
 
-    let imgData = ctx.getImageData(0, 0, offscreen.width, offscreen.height)
-    let luma8Data = convert_imagedata_to_luma(imgData)
+    const decoded = decode_barcode(ctx, offscreen.width, offscreen.height)
+    if (!decoded || (rollRegex.value && decoded.match(rollRegex.value) === null)) return
 
-    try {
-      let decoded = decode_barcode(luma8Data, offscreen.width, offscreen.height).text()
-      if (!rollRegex.value || decoded.match(rollRegex.value) !== null) {
-        rollNo = decoded
-        autoOpen()
-      }
-    } catch {}
+    rollNo = decoded
+    autoOpen()
   }
 
   function autoOpen() {
