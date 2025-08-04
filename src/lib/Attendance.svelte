@@ -132,8 +132,8 @@
   }
 </script>
 
-<div class="flex flex-1 flex-col items-center justify-center gap-y-4">
-  <div class="stats bg-base-200 border-base-300 w-fit border">
+<div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-4 py-4">
+  <div class="stats bg-base-300 border-base-300 w-fit border">
     <div class="stat text-center">
       <div class="stat-title">Entries</div>
       <div class="stat-value text-info">{totalCount}</div>
@@ -168,8 +168,8 @@
     </div>
   </div>
 
-  <div class="w-full overflow-x-auto" style="height: calc(100vh - 300px);">
-    <table class="table-pin-rows table-xs table-zebra table w-full">
+  <div class="w-full flex-1 overflow-x-auto">
+    <table class="table-pin-rows table-xs table w-full">
       <thead>
         <tr>
           <th>

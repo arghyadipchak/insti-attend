@@ -19,7 +19,8 @@
 <State />
 
 <main
-  class="flex h-screen flex-col"
+  class="flex flex-col"
+  style="height: calc(100dvh + env(safe-area-inset-bottom)); padding-top: env(safe-area-inset-top);"
   data-theme={(theme.value === 'system' && systemDark.value) || theme.value === 'dark'
     ? 'dim'
     : 'cupcake'}

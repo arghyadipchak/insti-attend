@@ -20,7 +20,7 @@ export const devices = $state({
 })
 export const selectedDevice = $state({ id: localStorage.getItem('deviceId') || '' })
 
-export const fps = $state({ value: Number(localStorage.getItem('fps') || '60') })
+export const fps = $state({ value: Number(localStorage.getItem('fps') || '10') })
 
 export const rollRegex = $state({ value: localStorage.getItem('rollRegex') || '' })
 

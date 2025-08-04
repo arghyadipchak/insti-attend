@@ -2,7 +2,7 @@
   import Icon from '@iconify/svelte'
 </script>
 
-<nav class="navbar bg-base-100 shadow-sm">
+<nav class="navbar bg-base-100">
   <div class="flex-1">
     <a class="btn btn-ghost text-xl" href="/">
       InstiAttend

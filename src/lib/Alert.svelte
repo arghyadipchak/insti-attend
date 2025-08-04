@@ -3,7 +3,7 @@
   import { alerts, removeAlert } from './shared.svelte'
 </script>
 
-<div class="toast toast-top toast-center">
+<div class="toast toast-top toast-center" style="padding-top: env(safe-area-inset-top) !important;">
   {#each Object.entries(alerts) as [id, alert]}
     {#if alert.type === 'settings'}
       <div role="alert" class="alert alert-success gap-x-2">

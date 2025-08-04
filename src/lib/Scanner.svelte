@@ -111,11 +111,18 @@
   }
 </script>
 
-<div class="bg-base-300 flex flex-1 flex-col items-center justify-center gap-y-10">
+<div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-10">
   <div class="relative w-full max-w-md">
-    <video bind:this={videoElement} class="h-full w-full p-8" autoplay playsinline>
-      <track kind="captions" />
-    </video>
+    <div class="relative aspect-[4/3] overflow-hidden">
+      <video
+        bind:this={videoElement}
+        class="absolute inset-0 h-full w-full object-cover p-8"
+        autoplay
+        playsinline
+      >
+        <track kind="captions" />
+      </video>
+    </div>
     <div class="pointer-events-none absolute inset-0 m-10 flex items-center justify-between">
       <div
         class="animate-blink absolute top-4 left-4 h-10 w-10 rounded-tl-lg border-t-4 border-l-4 border-white"

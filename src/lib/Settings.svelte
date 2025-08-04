@@ -62,8 +62,8 @@
   }
 </script>
 
-<div class="flex flex-1 flex-col items-center gap-y-4 overflow-x-auto py-4">
-  <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs gap-y-4 border p-4">
+<div class="bg-base-200 flex flex-1 flex-col items-center gap-y-4 overflow-x-auto pb-4">
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">Camera</legend>
 
     <div class="space-y-2">
@@ -102,7 +102,7 @@
     </div>
   </fieldset>
 
-  <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs gap-y-2 border p-4">
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">Attendance</legend>
 
     <label for="roll-regex" class="label">
@@ -122,10 +122,10 @@
     </div>
   </fieldset>
 
-  <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">Theme</legend>
 
-    <div class="join join-horizontal mx-auto">
+    <div class="join join-horizontal mx-auto grid grid-cols-3">
       <input
         type="radio"
         name="theme-buttons"
@@ -156,7 +156,7 @@
     </div>
   </fieldset>
 
-  <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs gap-y-4 border p-4">
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">WebHook</legend>
 
     <div class="space-y-2">
@@ -203,6 +203,17 @@
   <span class="mt-auto flex gap-x-1">
     Made with
     <Icon icon="mdi:heart" class="mt-1 text-red-500" />
-    by Arghyadip & Debojeet
+    by
+    <a href="https://www.linkedin.com/in/arghyadipchak/" class="group">
+      Arghyadip
+      <span class="bg-accent block h-0.5 max-w-0 transition-all duration-500 group-hover:max-w-full"
+      ></span>
+    </a>
+    &
+    <a href="https://www.linkedin.com/in/debojeet-das/" class="group">
+      Debojeet
+      <span class="bg-accent block h-0.5 max-w-0 transition-all duration-500 group-hover:max-w-full"
+      ></span>
+    </a>
   </span>
 </div>
