@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
   import { attendance, rollRegex, showAlert, webhook } from './shared.svelte'
+  import { download, postWebhook, toISOStringTZ } from './utils'
 
   let totalCount = $derived(Object.keys(attendance).length)
   let autoCount = $derived(Object.keys(attendance).filter(id => attendance[id].auto).length)
@@ -10,27 +11,7 @@
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
   }
 
-  const offset = -new Date().getTimezoneOffset()
-  const sign = offset >= 0 ? '+' : '-'
-
-  const pad = (num: number) => String(num).padStart(2, '0')
-  const toISOStringTZ = offset
-    ? (date: Date) => {
-        const year = date.getFullYear()
-        const month = pad(date.getMonth() + 1)
-        const day = pad(date.getDate())
-        const hours = pad(date.getHours())
-        const minutes = pad(date.getMinutes())
-        const seconds = pad(date.getSeconds())
-
-        const offsetHours = pad(Math.floor(Math.abs(offset) / 60))
-        const offsetMinutes = pad(Math.abs(offset) % 60)
-
-        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${offsetHours}:${offsetMinutes}`
-      }
-    : (date: Date) => date.toISOString()
-
-  function convertToCSV() {
+  function attendanceCSV() {
     let str = 'rollNo,timestamp,auto,reason\n'
     for (const [rollNo, record] of Object.entries(attendance)) {
       str += `${rollNo},${toISOStringTZ(record.timestamp)},${record.auto},${record.reason}\n`
@@ -41,47 +22,21 @@
   const tstampReplacer = (key: string, value: any) =>
     key === 'timestamp' ? toISOStringTZ(new Date(value)) : value
 
-  function download(type: 'csv' | 'json') {
+  function downloadAttendance(type: 'csv' | 'json') {
     const blob =
       type === 'csv'
-        ? new Blob([convertToCSV()], { type: 'text/csv;charset=utf-8;' })
+        ? new Blob([attendanceCSV()], { type: 'text/csv;charset=utf-8;' })
         : new Blob([JSON.stringify(attendance, tstampReplacer, 2)], {
             type: 'application/json;charset=utf-8;'
           })
-    const url = URL.createObjectURL(blob)
     const fname = `attendance-${toISOStringTZ(new Date())}.${type}`
 
-    const link = document.createElement('a')
-    link.setAttribute('href', url)
-    link.setAttribute('download', fname)
-    link.style.visibility = 'hidden'
-
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-
-    showAlert('download', `Downloading Attendance (${type.toUpperCase()})!`, fname)
+    download(blob, fname)
+    showAlert('download', `Downloading Attendance!`, fname)
   }
 
-  async function sendWebhook() {
-    try {
-      const response = await fetch(webhook.url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(webhook.authToken && {
-            Authorization: `Bearer ${webhook.authToken}`
-          })
-        },
-        body: JSON.stringify(attendance, tstampReplacer)
-      })
-
-      if (response.ok) showAlert('webhook-success', 'Sent to WebHook!')
-      else
-        showAlert('webhook-error', 'WebHook Failed!', `${response.status}: ${response.statusText}`)
-    } catch {
-      showAlert('webhook-error', 'WebHook Error!')
-    }
+  async function uploadWebhook() {
+    await postWebhook(webhook.url, webhook.authToken, JSON.stringify(attendance, tstampReplacer))
   }
 
   let allChecked = $state(false)
@@ -133,7 +88,7 @@
 </script>
 
 <div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-4 py-4">
-  <div class="stats bg-base-300 border-base-300 w-fit border">
+  <div class="stats bg-base-300 w-fit border border-gray-700">
     <div class="stat text-center">
       <div class="stat-title">Entries</div>
       <div class="stat-value text-info">{totalCount}</div>
@@ -148,18 +103,18 @@
     <div class="stat text-center">
       <div class="stat-title">Export</div>
       <div class="stat-actions">
-        <button class="btn btn-xs btn-success" onclick={() => download('csv')}>
+        <button class="btn btn-xs btn-success" onclick={() => downloadAttendance('csv')}>
           <Icon icon="fa6-solid:download" class="h-3 w-3" />
           <span class="mt-1">CSV</span>
         </button>
-        <button class="btn btn-xs btn-success" onclick={() => download('json')}>
+        <button class="btn btn-xs btn-success" onclick={() => downloadAttendance('json')}>
           <Icon icon="fa6-solid:download" class="h-3 w-3" />
           <span class="mt-1">JSON</span>
         </button>
       </div>
       {#if webhook.url}
         <div class="stat-actions">
-          <button class="btn btn-xs btn-success" onclick={sendWebhook}>
+          <button class="btn btn-xs btn-success" onclick={uploadWebhook}>
             <Icon icon="fa6-solid:upload" class="h-3 w-3" />
             <span class="mt-0.5">WebHook</span>
           </button>

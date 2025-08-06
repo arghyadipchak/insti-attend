@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Icon from '@iconify/svelte'
   import {
     devices,
@@ -9,6 +9,7 @@
     theme,
     webhook
   } from './shared.svelte'
+  import { download, postWebhook, toISOStringTZ } from './utils'
 
   const fpsMax = 60
   const fpsStep = 10
@@ -19,9 +20,18 @@
       ? '^(https?://)?(localhost|([a-zA-Z0-9]([a-zA-Z0-9\\-].*[a-zA-Z0-9])?\\.)+[a-zA-Z]).*$'
       : '^(https?://)?([a-zA-Z0-9]([a-zA-Z0-9\\-].*[a-zA-Z0-9])?\\.)+[a-zA-Z].*$'
 
-  let localRollRegex = rollRegex.value
-  let localWebhookUrl = webhook.url
-  let localWebhookToken = webhook.authToken
+  let localRollRegex = ''
+  let localWebhookUrl = ''
+  let localWebhookToken = ''
+  let fileInput: HTMLInputElement
+
+  updateLocal()
+
+  function updateLocal() {
+    localRollRegex = rollRegex.value
+    localWebhookUrl = webhook.url
+    localWebhookToken = webhook.authToken
+  }
 
   function saveRollRegex() {
     if (localRollRegex === rollRegex.value) return
@@ -31,34 +41,61 @@
   }
 
   async function testWebhook() {
-    if (localWebhookUrl === '') return
-
-    try {
-      const response = await fetch(localWebhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(localWebhookToken && {
-            Authorization: `Bearer ${localWebhookToken}`
-          })
-        },
-        body: '{}'
-      })
-
-      if (response.ok) showAlert('webhook-success', 'WebHook Success!')
-      else
-        showAlert('webhook-error', 'WebHook Failed!', `${response.status}: ${response.statusText}`)
-    } catch {
-      showAlert('webhook-error', 'WebHook Error!')
-    }
+    if (localWebhookUrl !== '') postWebhook(localWebhookUrl, localWebhookToken, '{}')
   }
 
-  function saveWebhook() {
+  async function saveWebhook() {
     if (localWebhookUrl === webhook.url && localWebhookToken === webhook.authToken) return
 
     webhook.url = localWebhookUrl
     webhook.authToken = localWebhookToken
     showAlert('settings', 'WebHook Saved!')
+  }
+
+  type Backup = {
+    rollRegex: string
+    webhook?: {
+      url: string
+      authToken?: string
+    }
+  }
+
+  async function importBackup(event: Event) {
+    const target = event.target as HTMLInputElement
+    if (!target.files || target.files.length === 0) return
+
+    const file = target.files[0]
+    const text = await file.text()
+
+    try {
+      const backup = JSON.parse(text) as Backup
+
+      rollRegex.value = backup.rollRegex
+      if (backup.webhook) {
+        webhook.url = backup.webhook?.url
+        webhook.authToken = backup.webhook?.authToken || ''
+      }
+
+      updateLocal()
+      showAlert('settings', 'Backup Imported Successfully!')
+    } catch (error) {
+      showAlert('webhook-error', 'Invalid Backup File!')
+    }
+  }
+
+  function exportBackup() {
+    const backup: Backup = {
+      rollRegex: rollRegex.value,
+      webhook: webhook
+    }
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: 'application/json;charset=utf-8;'
+    })
+    const fname = `insti-attend-backup-${toISOStringTZ(new Date())}.json`
+
+    download(blob, fname)
+    showAlert('download', 'Downloading Backup!', fname)
   }
 </script>
 
@@ -118,41 +155,7 @@
         placeholder="Enter Roll Regex"
         bind:value={localRollRegex}
       />
-      <button class="btn btn-primary join-item" onclick={saveRollRegex}> Save </button>
-    </div>
-  </fieldset>
-
-  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
-    <legend class="fieldset-legend">Theme</legend>
-
-    <div class="join join-horizontal mx-auto grid grid-cols-3">
-      <input
-        type="radio"
-        name="theme-buttons"
-        class="btn theme-controller join-item !outline-0"
-        class:btn-primary={theme.value === 'system'}
-        aria-label="System"
-        value="system"
-        bind:group={theme.value}
-      />
-      <input
-        type="radio"
-        name="theme-buttons"
-        class="btn theme-controller join-item !outline-0"
-        class:btn-primary={theme.value === 'light'}
-        aria-label="Light"
-        value="light"
-        bind:group={theme.value}
-      />
-      <input
-        type="radio"
-        name="theme-buttons"
-        class="btn theme-controller join-item !outline-0"
-        class:btn-primary={theme.value === 'dark'}
-        aria-label="Dark"
-        value="dark"
-        bind:group={theme.value}
-      />
+      <button class="btn btn-primary join-item" onclick={saveRollRegex}>Save</button>
     </div>
   </fieldset>
 
@@ -200,17 +203,75 @@
     </div>
   </fieldset>
 
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
+    <legend class="fieldset-legend">Theme</legend>
+
+    <div class="join join-horizontal mx-auto grid grid-cols-3">
+      <input
+        type="radio"
+        name="theme-buttons"
+        class="btn theme-controller join-item !outline-0"
+        class:btn-primary={theme.value === 'system'}
+        aria-label="System"
+        value="system"
+        bind:group={theme.value}
+      />
+      <input
+        type="radio"
+        name="theme-buttons"
+        class="btn theme-controller join-item !outline-0"
+        class:btn-primary={theme.value === 'light'}
+        aria-label="Light"
+        value="light"
+        bind:group={theme.value}
+      />
+      <input
+        type="radio"
+        name="theme-buttons"
+        class="btn theme-controller join-item !outline-0"
+        class:btn-primary={theme.value === 'dark'}
+        aria-label="Dark"
+        value="dark"
+        bind:group={theme.value}
+      />
+    </div>
+  </fieldset>
+
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
+    <legend class="fieldset-legend">Sync</legend>
+
+    <input
+      bind:this={fileInput}
+      type="file"
+      accept=".json,application/json"
+      class="hidden"
+      onchange={importBackup}
+    />
+
+    <div class="flex justify-evenly">
+      <button class="btn bg-primary text-primary-content" onclick={() => fileInput.click()}>
+        <Icon icon="fa6-solid:file-import" class="h-4 w-4" />
+        <span class="mt-0.5">Import</span>
+      </button>
+
+      <button class="btn bg-primary text-primary-content" onclick={exportBackup}>
+        <Icon icon="fa6-solid:file-export" class="h-4 w-4" />
+        <span class="mt-0.5">Export</span>
+      </button>
+    </div>
+  </fieldset>
+
   <span class="mt-auto flex gap-x-1">
     Made with
     <Icon icon="mdi:heart" class="mt-1 text-red-500" />
     by
-    <a href="https://www.linkedin.com/in/arghyadipchak/" class="group">
+    <a href="https://github.com/arghyadipchak" class="group">
       Arghyadip
       <span class="bg-accent block h-0.5 max-w-0 transition-all duration-500 group-hover:max-w-full"
       ></span>
     </a>
     &
-    <a href="https://www.linkedin.com/in/debojeet-das/" class="group">
+    <a href="https://github.com/rickydebojeet" class="group">
       Debojeet
       <span class="bg-accent block h-0.5 max-w-0 transition-all duration-500 group-hover:max-w-full"
       ></span>

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import { getCameraDevices } from './lib/cameraUtils'
   import { component, devices, systemDark, theme } from './lib/shared.svelte'
+  import { initCamera } from './lib/utils'
 
   import Alert from './lib/Alert.svelte'
   import Attendance from './lib/Attendance.svelte'
@@ -13,7 +13,7 @@
   import Settings from './lib/Settings.svelte'
   import State from './lib/State.svelte'
 
-  onMount(getCameraDevices)
+  onMount(initCamera)
 </script>
 
 <State />

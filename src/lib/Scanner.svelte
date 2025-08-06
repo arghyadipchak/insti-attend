@@ -61,7 +61,7 @@
       videoElement.srcObject = stream
       videoElement.play()
     } catch (err) {
-      console.error('Error accessing camera:', err)
+      console.error('error accessing camera:', err)
     }
   }
 
