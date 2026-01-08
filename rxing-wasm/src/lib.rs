@@ -3,6 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::OffscreenCanvasRenderingContext2d;
 
 #[inline]
+// Convert RGBA image data to Luma (grayscale) data
 fn convert_image_to_luma(data: &[u8]) -> Vec<u8> {
     let mut luma_data = Vec::with_capacity(data.len() / 4);
     for src_pixel in data.chunks_exact(4) {
@@ -27,22 +28,24 @@ fn convert_image_to_luma(data: &[u8]) -> Vec<u8> {
 }
 
 #[wasm_bindgen]
-/// Decode a barcode from an `OffscreenCanvasRenderingContext2d` object
+// Decode a barcode from an `OffscreenCanvasRenderingContext2d` object
 pub fn decode_barcode(
     canvas: OffscreenCanvasRenderingContext2d,
     width: u32,
     height: u32,
 ) -> String {
-    if let Ok(image_data) = canvas.get_image_data(0.0, 0.0, width as f64, height as f64)
-        && let Ok(result) = helpers::detect_in_luma(
-            convert_image_to_luma(&image_data.data()),
-            width,
-            height,
-            Some(BarcodeFormat::CODE_128),
-        )
-    {
-        result.getText().to_string()
-    } else {
-        String::new()
+    if let Ok(image_data) = canvas.get_image_data(0.0, 0.0, width as f64, height as f64) {
+        for format in [BarcodeFormat::CODE_128, BarcodeFormat::CODE_39] {
+            if let Ok(result) = helpers::detect_in_luma(
+                convert_image_to_luma(&image_data.data()),
+                width,
+                height,
+                Some(format),
+            ) {
+                return result.getText().to_string();
+            }
+        }
     }
+
+    String::new()
 }

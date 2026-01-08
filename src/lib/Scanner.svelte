@@ -113,7 +113,7 @@
 
 <div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-10">
   <div class="relative w-full max-w-md">
-    <div class="relative aspect-[4/3] overflow-hidden">
+    <div class="relative aspect-4/3 overflow-hidden">
       <video
         bind:this={videoElement}
         class="absolute inset-0 h-full w-full object-cover p-8"
