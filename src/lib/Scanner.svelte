@@ -15,7 +15,7 @@
   let manualModal: HTMLDialogElement
 
   let rollNo = $state('')
-  let manualReason = $state('no_id_card')
+  let comment = $state('')
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
@@ -101,12 +101,12 @@
   }
 
   function autoPresent() {
-    attendance[rollNo] = { timestamp: new Date(), auto: true, reason: '' }
+    attendance[rollNo] = { timestamp: new Date(), auto: true, comment: comment }
     rollNo = ''
   }
 
   function manualPresent() {
-    attendance[rollNo] = { timestamp: new Date(), auto: false, reason: manualReason }
+    attendance[rollNo] = { timestamp: new Date(), auto: false, comment: comment }
     rollNo = ''
   }
 </script>
@@ -155,7 +155,19 @@
         <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
       </form>
 
-      <h3 class="text-center font-bold">{rollNo}</h3>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Roll Number</legend>
+        <input bind:value={rollNo} type="text" class="input validator w-full" required readonly />
+
+        <legend class="fieldset-legend">Comment</legend>
+        <input
+          bind:value={comment}
+          type="text"
+          class="input w-full"
+          required
+          placeholder="Enter Comment"
+        />
+      </fieldset>
 
       <form method="dialog">
         <button class="btn btn-secondary mt-4 w-full" onclick={autoPresent}>Mark Present</button>
@@ -187,27 +199,14 @@
         />
         <p class="validator-hint hidden">Must be valid Roll No</p>
 
-        <legend class="fieldset-legend">Reason</legend>
-        <div class="flex items-center gap-x-2">
-          <input
-            bind:group={manualReason}
-            type="radio"
-            name="reason-radio"
-            class="radio"
-            value="no_id_card"
-          />
-          <span>ID Card Unavailable</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <input
-            bind:group={manualReason}
-            type="radio"
-            name="reason-radio"
-            class="radio"
-            value="not_scannable"
-          />
-          <span>ID Card Not Scannable</span>
-        </div>
+        <legend class="fieldset-legend">Comment</legend>
+        <input
+          bind:value={comment}
+          type="text"
+          class="input w-full"
+          required
+          placeholder="Enter Comment"
+        />
       </fieldset>
 
       <form method="dialog">

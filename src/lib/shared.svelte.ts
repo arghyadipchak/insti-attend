@@ -33,7 +33,7 @@ export const webhook = $state<WebHook>(JSON.parse(localStorage.getItem('webhook'
 interface AttendanceRecord {
   timestamp: Date
   auto: boolean
-  reason: string
+  comment: string
 }
 export const attendance = $state<Record<string, AttendanceRecord>>(
   JSON.parse(localStorage.getItem('attendance') || '{}', (key, value) => {

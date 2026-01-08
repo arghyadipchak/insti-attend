@@ -12,9 +12,9 @@
   }
 
   function attendanceCSV() {
-    let str = 'rollNo,timestamp,auto,reason\n'
+    let str = 'rollNo,timestamp,auto,comment\n'
     for (const [rollNo, record] of Object.entries(attendance)) {
-      str += `${rollNo},${toISOStringTZ(record.timestamp)},${record.auto},${record.reason}\n`
+      str += `${rollNo},${toISOStringTZ(record.timestamp)},${record.auto},${record.comment}\n`
     }
     return str
   }
@@ -62,14 +62,14 @@
   let oldRollNo = ''
   let editRollNo = $state('')
   let editAuto = $state(false)
-  let editReason = $state('')
+  let editComment = $state('')
   let rollNoValid = $derived(editRollNo.match(rollRegex.value) !== null)
 
   function editOpen(rollNo: string) {
     oldRollNo = rollNo
     editRollNo = rollNo
     editAuto = attendance[rollNo].auto
-    editReason = attendance[rollNo].reason || 'no_id_card'
+    editComment = attendance[rollNo].comment
 
     editModal.showModal()
   }
@@ -78,7 +78,7 @@
     attendance[editRollNo] = {
       timestamp: new Date(),
       auto: editAuto,
-      reason: editAuto ? '' : editReason
+      comment: editComment
     }
 
     if (oldRollNo !== editRollNo) delete attendance[oldRollNo]
@@ -139,7 +139,7 @@
           </th>
           <th>Roll No</th>
           <th>Auto</th>
-          <th>Reason</th>
+          <th>Comment</th>
           <th></th>
         </tr>
       </thead>
@@ -161,7 +161,7 @@
             </th>
             <td>{rollNo}</td>
             <td>{record.auto ? 'Yes' : 'No'}</td>
-            <td>{record.reason ? record.reason : '-'}</td>
+            <td>{record.comment || '-'}</td>
             <td>
               <button
                 class="btn btn-xs btn-accent btn-square transform transition-transform duration-300 hover:scale-110"
@@ -210,29 +210,13 @@
         <legend class="fieldset-legend">Auto</legend>
         <input bind:checked={editAuto} type="checkbox" class="toggle" />
 
-        {#if !editAuto}
-          <legend class="fieldset-legend">Reason</legend>
-          <div class="flex items-center gap-x-2">
-            <input
-              bind:group={editReason}
-              type="radio"
-              name="reason-radio"
-              class="radio"
-              value="no_id_card"
-            />
-            <span>ID Card Unavailable</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <input
-              bind:group={editReason}
-              type="radio"
-              name="reason-radio"
-              class="radio"
-              value="not_scannable"
-            />
-            <span>ID Card Not Scannable</span>
-          </div>
-        {/if}
+        <legend class="fieldset-legend">Comment</legend>
+        <input
+          bind:value={editComment}
+          type="text"
+          class="input w-full"
+          placeholder="Enter Comment"
+        />
       </fieldset>
 
       <form method="dialog" class="mt-4">
