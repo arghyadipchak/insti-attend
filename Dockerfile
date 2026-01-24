@@ -1,4 +1,4 @@
-ARG RUST_VERSION=1.92
+ARG RUST_VERSION=1.93
 ARG WASM_PACK_VERSION=0.14.0
 ARG NODE_VERSION=24
 ARG NGINX_VERSION=1.29
@@ -14,9 +14,10 @@ ARG BUILD_DIR
 WORKDIR ${BUILD_DIR}
 
 ARG DEBIAN_FRONTEND
-RUN \
-  apt-get update && \
-  apt-get install -y wget ca-certificates && \
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
+  wget ca-certificates && \
+  apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
 ARG WASM_PACK_VERSION
