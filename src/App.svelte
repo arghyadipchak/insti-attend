@@ -1,14 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import { component, devices, systemDark, theme } from './lib/shared.svelte'
+  import { component, systemDark, theme } from './lib/shared.svelte'
   import { initCamera } from './lib/utils'
 
   import Alert from './lib/Alert.svelte'
   import Attendance from './lib/Attendance.svelte'
   import Dock from './lib/Dock.svelte'
   import Navbar from './lib/Navbar.svelte'
-  import NoCamera from './lib/NoCamera.svelte'
   import Scanner from './lib/Scanner.svelte'
   import Settings from './lib/Settings.svelte'
   import State from './lib/State.svelte'
@@ -28,11 +27,7 @@
   <Navbar />
 
   {#if component.selected === 'scanner'}
-    {#if Object.keys(devices.label).length > 0}
-      <Scanner />
-    {:else}
-      <NoCamera />
-    {/if}
+    <Scanner />
   {:else if component.selected === 'attendance'}
     <Attendance />
   {:else if component.selected === 'settings'}
