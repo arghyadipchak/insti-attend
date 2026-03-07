@@ -210,7 +210,7 @@
       <input
         type="radio"
         name="theme-buttons"
-        class="btn theme-controller join-item !outline-0"
+        class="btn theme-controller join-item outline-0!"
         class:btn-primary={theme.value === 'system'}
         aria-label="System"
         value="system"
@@ -219,7 +219,7 @@
       <input
         type="radio"
         name="theme-buttons"
-        class="btn theme-controller join-item !outline-0"
+        class="btn theme-controller join-item outline-0!"
         class:btn-primary={theme.value === 'light'}
         aria-label="Light"
         value="light"
@@ -228,7 +228,7 @@
       <input
         type="radio"
         name="theme-buttons"
-        class="btn theme-controller join-item !outline-0"
+        class="btn theme-controller join-item outline-0!"
         class:btn-primary={theme.value === 'dark'}
         aria-label="Dark"
         value="dark"
