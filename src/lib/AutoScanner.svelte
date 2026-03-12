@@ -55,6 +55,14 @@
         }
       })
 
+      const track = stream.getVideoTracks()[0]
+      // @ts-ignore
+      if (track.getCapabilities().focusDistance)
+        await track.applyConstraints({
+          // @ts-ignore
+          advanced: [{ focusMode: 'continuous' }]
+        })
+
       videoElement.onloadedmetadata = resizeOffscreenCanvas
       videoElement.srcObject = stream
       videoElement.play()
