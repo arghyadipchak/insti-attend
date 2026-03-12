@@ -2,6 +2,7 @@
   import {
     attendance,
     fps,
+    overwrite,
     rollRegex,
     selectedDevice,
     systemDark,
@@ -28,6 +29,10 @@
 
   $effect(() => {
     localStorage.setItem('rollRegex', rollRegex.value)
+  })
+
+  $effect(() => {
+    localStorage.setItem('overwrite', overwrite.value.toString())
   })
 
   $effect(() => {

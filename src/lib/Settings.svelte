@@ -3,6 +3,7 @@
   import {
     devices,
     fps,
+    overwrite,
     rollRegex,
     selectedDevice,
     showAlert,
@@ -157,6 +158,11 @@
       />
       <button class="btn btn-primary join-item" onclick={saveRollRegex}>Save</button>
     </div>
+
+    <label class="label flex justify-between">
+      Overwrite
+      <input type="checkbox" bind:checked={overwrite.value} class="toggle toggle-primary" />
+    </label>
   </fieldset>
 
   <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">

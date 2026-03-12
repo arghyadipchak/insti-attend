@@ -24,6 +24,8 @@ export const fps = $state({ value: Number(localStorage.getItem('fps') || '10') }
 
 export const rollRegex = $state({ value: localStorage.getItem('rollRegex') || '' })
 
+export const overwrite = $state({ value: localStorage.getItem('overwrite') !== 'false' })
+
 interface WebHook {
   url: string
   authToken: string

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { decode_barcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
-  import { attendance, fps, rollRegex, selectedDevice } from './shared.svelte'
+  import { attendance, fps, overwrite, rollRegex, selectedDevice } from './shared.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -14,6 +14,7 @@
 
   let rollNo = $state('')
   let comment = $state('')
+  let isOverwrite = $derived(rollNo.length != 0 && !overwrite.value && rollNo in attendance)
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
@@ -145,7 +146,10 @@
 
     <fieldset class="fieldset">
       <legend class="fieldset-legend">Roll Number</legend>
-      <input bind:value={rollNo} type="text" class="input validator w-full" required readonly />
+      <input bind:value={rollNo} type="text" class="input w-full" required readonly />
+      {#if isOverwrite}
+        <p class="text-warning mt-1 text-sm">⚠️ Roll No is already marked present</p>
+      {/if}
 
       <legend class="fieldset-legend">Comment</legend>
       <input
@@ -158,7 +162,13 @@
     </fieldset>
 
     <form method="dialog">
-      <button class="btn btn-secondary mt-4 w-full" onclick={markPresent}>Mark Present</button>
+      <button
+        class="btn btn-secondary mt-4 w-full"
+        disabled={rollNo.length == 0 || isOverwrite}
+        onclick={markPresent}
+      >
+        Mark Present
+      </button>
     </form>
   </div>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance, rollRegex } from './shared.svelte'
+  import { attendance, overwrite, rollRegex } from './shared.svelte'
 
   interface Props {
     onModalOpen?: () => void
@@ -12,6 +12,11 @@
 
   let rollNo = $state('')
   let comment = $state('')
+
+  let isOverwrite = $derived(rollNo.length != 0 && !overwrite.value && rollNo in attendance)
+  let isInvalid = $derived(
+    rollNo.length != 0 && rollRegex.value.length != 0 && rollNo.match(rollRegex.value) === null
+  )
 
   function openModal() {
     if (onModalOpen) onModalOpen()
@@ -43,24 +48,18 @@
 
     <fieldset class="fieldset">
       <legend class="fieldset-legend">Roll Number</legend>
-      {#if rollRegex.value}
-        <input
-          bind:value={rollNo}
-          type="text"
-          class="input validator w-full"
-          required
-          placeholder="Enter Roll No"
-          pattern={rollRegex.value}
-        />
-        <p class="validator-hint hidden">Must be valid Roll No</p>
-      {:else}
-        <input
-          bind:value={rollNo}
-          type="text"
-          class="input w-full"
-          required
-          placeholder="Enter Roll No"
-        />
+      <input
+        bind:value={rollNo}
+        type="text"
+        class="input w-full"
+        required
+        placeholder="Enter Roll No"
+      />
+      {#if isOverwrite}
+        <p class="text-warning mt-1 text-sm">⚠️ Roll No is already marked present</p>
+      {/if}
+      {#if isInvalid}
+        <p class="text-warning mt-1 text-sm">⚠️ Must be valid Roll No</p>
       {/if}
 
       <legend class="fieldset-legend">Comment</legend>
@@ -76,7 +75,7 @@
     <form method="dialog">
       <button
         class="btn btn-secondary mt-4 w-full"
-        disabled={!rollNo || (!!rollRegex.value && rollNo.match(rollRegex.value) === null)}
+        disabled={rollNo.length == 0 || isOverwrite || isInvalid}
         onclick={markPresent}
       >
         Mark Present
