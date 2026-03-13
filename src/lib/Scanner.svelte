@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { devices } from './shared.svelte'
+  import { devices } from './settings.svelte'
 
   import AutoScanner from './AutoScanner.svelte'
   import ManualEntry from './ManualEntry.svelte'

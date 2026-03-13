@@ -1,6 +1,8 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance, component } from './shared.svelte'
+
+  import { attendance } from './attendance.svelte'
+  import { component } from './system.svelte'
 
   let totalCount = $derived(Object.keys(attendance).length)
 </script>

@@ -1,10 +1,14 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance, rollRegex, showAlert, webhook } from './shared.svelte'
+
+  import { showAlert } from './alert.svelte'
+  import { attendance } from './attendance.svelte'
+  import { rollRegex, webhook } from './settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
 
-  let totalCount = $derived(Object.keys(attendance).length)
-  let autoCount = $derived(Object.keys(attendance).filter(id => attendance[id].auto).length)
+  let attendanceValues = $derived(Object.values(attendance))
+  let totalCount = $derived(attendanceValues.length)
+  let autoCount = $derived(attendanceValues.filter(record => record.auto).length)
   let manualCount = $derived(totalCount - autoCount)
 
   function getPercentage(count: number, total: number): string {
@@ -63,7 +67,9 @@
   let editRollNo = $state('')
   let editAuto = $state(false)
   let editComment = $state('')
-  let rollNoValid = $derived(editRollNo.match(rollRegex.value) !== null)
+  let rollNoValid = $derived(
+    editRollNo.length === 0 || !rollRegex.value || rollRegex.value.test(editRollNo)
+  )
 
   function editOpen(rollNo: string) {
     oldRollNo = rollNo

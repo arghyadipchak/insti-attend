@@ -1,19 +1,25 @@
 <script lang="ts">
   import { decodeBarcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
+
+  import { attendance } from './attendance.svelte'
   import {
     allowlist,
-    attendance,
     blocklist,
     fps,
     overwrite,
     rollRegex,
     selectedDevice
-  } from './shared.svelte'
+  } from './settings.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
-  let intervalId = 0
+
+  let frameInterval = $derived(1000 / fps.value)
+  let cameraSession = 0
+  let scanning = false
+  let timeoutId = 0
+  let isDestroyed = false
 
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
@@ -35,23 +41,41 @@
     if (selectedDevice.id) startCamera()
   })
 
-  window.addEventListener('resize', resizeOffscreenCanvas)
+  onMount(() => {
+    window.addEventListener('resize', resizeOffscreenCanvas)
+    startScanning()
 
-  onMount(startScanning)
+    return () => window.removeEventListener('resize', resizeOffscreenCanvas)
+  })
 
-  onDestroy(async () => {
+  onDestroy(() => {
+    isDestroyed = true
     stopScanning()
-    await stopCamera()
+    void stopCamera()
   })
 
   export function startScanning() {
-    if (intervalId) return
-    intervalId = setInterval(scanCurrentFrame, 1000 / fps.value)
+    if (scanning) return
+    scanning = true
+    scheduleNextScan()
   }
 
   export function stopScanning() {
-    clearInterval(intervalId)
-    intervalId = 0
+    scanning = false
+    clearTimeout(timeoutId)
+    timeoutId = 0
+  }
+
+  function scheduleNextScan() {
+    if (!scanning) return
+
+    const start = performance.now()
+    scanCurrentFrame()
+
+    if (!scanning) return
+
+    const remaining = frameInterval - (performance.now() - start)
+    timeoutId = setTimeout(scheduleNextScan, Math.max(0, remaining))
   }
 
   function resizeOffscreenCanvas() {
@@ -62,14 +86,23 @@
   }
 
   async function startCamera() {
+    const session = ++cameraSession
+
     try {
       if (stream) stream.getTracks().forEach(track => track.stop())
 
-      stream = await navigator.mediaDevices.getUserMedia({
+      const nextStream = await navigator.mediaDevices.getUserMedia({
         video: {
           deviceId: selectedDevice.id ? { exact: selectedDevice.id } : undefined
         }
       })
+
+      if (isDestroyed || session !== cameraSession) {
+        nextStream.getTracks().forEach(track => track.stop())
+        return
+      }
+
+      stream = nextStream
 
       const track = stream.getVideoTracks()[0]
       // @ts-ignore
@@ -88,8 +121,13 @@
   }
 
   async function stopCamera() {
-    videoElement.pause()
-    videoElement.srcObject = null
+    cameraSession++
+
+    if (videoElement) {
+      videoElement.onloadedmetadata = null
+      videoElement.pause()
+      videoElement.srcObject = null
+    }
 
     if (stream) stream.getTracks().forEach(track => track.stop())
   }
@@ -107,12 +145,9 @@
 
     try {
       const decoded = decodeBarcode(ctx, offscreen.width, offscreen.height)
-      if (
-        decoded.length === 0 ||
-        rollRegex.value.length == 0 ||
-        decoded.match(rollRegex.value) === null
-      )
-        return
+
+      if (decoded.length == 0) return
+      if (rollRegex.value && !rollRegex.value.test(decoded)) return
 
       rollNo = decoded
       openModal()

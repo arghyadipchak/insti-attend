@@ -1,4 +1,5 @@
-import { devices, selectedDevice, showAlert } from './shared.svelte'
+import { showAlert } from './alert.svelte'
+import { devices, selectedDevice } from './settings.svelte'
 
 export async function initCamera() {
   try {
@@ -9,8 +10,6 @@ export async function initCamera() {
     const videoDevices = mediaDevices.filter(device => device.kind === 'videoinput')
 
     if (videoDevices.length == 0) return
-
-    selectedDevice.id && videoDevices.some(device => device.deviceId === selectedDevice.id)
 
     if (!(selectedDevice.id && videoDevices.find(device => device.deviceId === selectedDevice.id)))
       selectedDevice.id =
@@ -60,7 +59,9 @@ export function download(blob: Blob, name: string) {
 
   document.body.appendChild(link)
   link.click()
+
   document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 
 export async function postWebhook(url: string, token: string, body: string): Promise<boolean> {

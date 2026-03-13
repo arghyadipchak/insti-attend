@@ -1,5 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
+
+  import { showAlert } from './alert.svelte'
   import {
     allowlist,
     blocklist,
@@ -8,10 +10,10 @@
     overwrite,
     rollRegex,
     selectedDevice,
-    showAlert,
+    setRollRegex,
     theme,
     webhook
-  } from './shared.svelte'
+  } from './settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
 
   const fpsMax = 60
@@ -31,16 +33,17 @@
   updateLocal()
 
   function updateLocal() {
-    localRollRegex = rollRegex.value
+    localRollRegex = rollRegex.value?.source || ''
     localWebhookUrl = webhook.url
     localWebhookToken = webhook.authToken
   }
 
   function saveRollRegex() {
-    if (localRollRegex === rollRegex.value) return
+    if (localRollRegex === (rollRegex.value?.source || '')) return
 
-    rollRegex.value = localRollRegex
-    showAlert('settings', 'Roll Regex Saved!')
+    setRollRegex(localRollRegex)
+      ? showAlert('settings', 'Roll Regex Saved!')
+      : showAlert('error', 'Invalid Roll Regex!')
   }
 
   async function testWebhook() {
@@ -56,7 +59,7 @@
   }
 
   type Backup = {
-    rollRegex: string
+    rollRegex?: string
     webhook?: {
       url: string
       authToken?: string
@@ -145,15 +148,25 @@
 
     try {
       const backup = JSON.parse(text) as Backup
+      let partial = false
 
-      rollRegex.value = backup.rollRegex
+      if (typeof backup.rollRegex === 'string') {
+        if (!setRollRegex(backup.rollRegex)) {
+          showAlert('error', 'Invalid Roll Regex in Backup!')
+          partial = true
+        }
+      }
+
       if (backup.webhook) {
         webhook.url = backup.webhook?.url
         webhook.authToken = backup.webhook?.authToken || ''
       }
 
       updateLocal()
-      showAlert('settings', 'Backup Imported Successfully!')
+
+      partial
+        ? showAlert('warning', 'Backup Imported Partially!')
+        : showAlert('settings', 'Backup Imported Successfully!')
     } catch (error) {
       showAlert('error', 'Invalid Backup File!')
     }
@@ -161,7 +174,7 @@
 
   function exportBackup() {
     const backup: Backup = {
-      rollRegex: rollRegex.value,
+      rollRegex: rollRegex.value?.source || '',
       webhook: webhook
     }
 

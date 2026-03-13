@@ -1,58 +1,21 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { alerts, removeAlert } from './shared.svelte'
+
+  import { alertClass, alertIcon, alerts, removeAlert } from './alert.svelte'
 </script>
 
 <div class="toast toast-top toast-center" style="padding-top: env(safe-area-inset-top) !important;">
   {#each Object.entries(alerts) as [id, alert]}
-    {#if alert.type === 'error'}
-      <div role="alert" class="alert alert-error gap-x-2">
-        <Icon icon="mingcute:alert-line" class="h-5 w-5" />
-        <span>
-          {alert.text}
-          {#if alert.subtext}
-            <br />
-            <span class="text-xs">{alert.subtext}</span>
-          {/if}
-        </span>
-        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
-      </div>
-    {:else if alert.type === 'settings'}
-      <div role="alert" class="alert alert-success gap-x-2">
-        <Icon icon="mdi:content-save" class="h-5 w-5" />
-        <span>
-          {alert.text}
-          {#if alert.subtext}
-            <br />
-            <span class="text-xs">{alert.subtext}</span>
-          {/if}
-        </span>
-        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
-      </div>
-    {:else if alert.type === 'download'}
-      <div role="alert" class="alert alert-success gap-x-2">
-        <Icon icon="fa6-solid:download" class="h-5 w-5" />
-        <span>
-          {alert.text}
-          {#if alert.subtext}
-            <br />
-            <span class="text-xs">{alert.subtext}</span>
-          {/if}
-        </span>
-        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
-      </div>
-    {:else if alert.type === 'webhook'}
-      <div role="alert" class="alert alert-success gap-x-2">
-        <Icon icon="mdi:webhook" class="h-5 w-5" />
-        <span>
-          {alert.text}
-          {#if alert.subtext}
-            <br />
-            <span class="text-xs">{alert.subtext}</span>
-          {/if}
-        </span>
-        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
-      </div>
-    {/if}
+    <div role="alert" class={`alert ${alertClass(alert.type)} gap-x-2`}>
+      <Icon icon={alertIcon(alert.type)} class="h-5 w-5" />
+      <span>
+        {alert.text}
+        {#if alert.subtext}
+          <br />
+          <span class="text-xs">{alert.subtext}</span>
+        {/if}
+      </span>
+      <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
+    </div>
   {/each}
 </div>

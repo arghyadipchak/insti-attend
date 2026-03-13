@@ -1,6 +1,8 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { allowlist, attendance, blocklist, overwrite, rollRegex } from './shared.svelte'
+
+  import { attendance } from './attendance.svelte'
+  import { allowlist, blocklist, overwrite, rollRegex } from './settings.svelte'
 
   interface Props {
     onModalOpen?: () => void
@@ -14,7 +16,7 @@
   let comment = $state('')
 
   let isInvalid = $derived(
-    rollRegex.value.length != 0 && rollNo.length != 0 && rollNo.match(rollRegex.value) === null
+    rollNo.length !== 0 && rollRegex.value !== null && !rollRegex.value.test(rollNo)
   )
   let isOverwrite = $derived(!overwrite.value && rollNo.length != 0 && rollNo in attendance)
   let isNotAllowed = $derived(
