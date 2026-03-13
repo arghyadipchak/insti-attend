@@ -5,7 +5,19 @@
 
 <div class="toast toast-top toast-center" style="padding-top: env(safe-area-inset-top) !important;">
   {#each Object.entries(alerts) as [id, alert]}
-    {#if alert.type === 'settings'}
+    {#if alert.type === 'error'}
+      <div role="alert" class="alert alert-error gap-x-2">
+        <Icon icon="mingcute:alert-line" class="h-5 w-5" />
+        <span>
+          {alert.text}
+          {#if alert.subtext}
+            <br />
+            <span class="text-xs">{alert.subtext}</span>
+          {/if}
+        </span>
+        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
+      </div>
+    {:else if alert.type === 'settings'}
       <div role="alert" class="alert alert-success gap-x-2">
         <Icon icon="mdi:content-save" class="h-5 w-5" />
         <span>
@@ -29,21 +41,9 @@
         </span>
         <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
       </div>
-    {:else if alert.type === 'webhook-success'}
+    {:else if alert.type === 'webhook'}
       <div role="alert" class="alert alert-success gap-x-2">
         <Icon icon="mdi:webhook" class="h-5 w-5" />
-        <span>
-          {alert.text}
-          {#if alert.subtext}
-            <br />
-            <span class="text-xs">{alert.subtext}</span>
-          {/if}
-        </span>
-        <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
-      </div>
-    {:else if alert.type === 'webhook-error'}
-      <div role="alert" class="alert alert-error gap-x-2">
-        <Icon icon="mingcute:alert-line" class="h-5 w-5" />
         <span>
           {alert.text}
           {#if alert.subtext}

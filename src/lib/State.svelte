@@ -1,6 +1,8 @@
 <script lang="ts">
   import {
+    allowlist,
     attendance,
+    blocklist,
     fps,
     overwrite,
     rollRegex,
@@ -29,6 +31,14 @@
 
   $effect(() => {
     localStorage.setItem('rollRegex', rollRegex.value)
+  })
+
+  $effect(() => {
+    localStorage.setItem('allowlist', JSON.stringify([...allowlist.value]))
+  })
+
+  $effect(() => {
+    localStorage.setItem('blocklist', JSON.stringify([...blocklist.value]))
   })
 
   $effect(() => {

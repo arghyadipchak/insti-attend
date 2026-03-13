@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
-  import { attendance, overwrite, rollRegex } from './shared.svelte'
+  import { allowlist, attendance, blocklist, overwrite, rollRegex } from './shared.svelte'
 
   interface Props {
     onModalOpen?: () => void
@@ -13,10 +13,12 @@
   let rollNo = $state('')
   let comment = $state('')
 
-  let isOverwrite = $derived(rollNo.length != 0 && !overwrite.value && rollNo in attendance)
   let isInvalid = $derived(
     rollNo.length != 0 && rollRegex.value.length != 0 && rollNo.match(rollRegex.value) === null
   )
+  let isOverwrite = $derived(rollNo.length != 0 && !overwrite.value && rollNo in attendance)
+  let isNotAllowed = $derived(rollNo.length != 0 && !(rollNo in allowlist.value))
+  let isBlocked = $derived(rollNo.length != 0 && rollNo in blocklist.value)
 
   function openModal() {
     if (onModalOpen) onModalOpen()
@@ -55,11 +57,17 @@
         required
         placeholder="Enter Roll No"
       />
+      {#if isInvalid}
+        <p class="text-warning mt-1 text-sm">⚠️ Roll No is not valid</p>
+      {/if}
       {#if isOverwrite}
         <p class="text-warning mt-1 text-sm">⚠️ Roll No is already marked present</p>
       {/if}
-      {#if isInvalid}
-        <p class="text-warning mt-1 text-sm">⚠️ Must be valid Roll No</p>
+      {#if isNotAllowed}
+        <p class="text-warning mt-1 text-sm">⚠️ Roll No is not in allowlist</p>
+      {/if}
+      {#if isBlocked}
+        <p class="text-error mt-1 text-sm">⛔ Roll No is in blocklist</p>
       {/if}
 
       <legend class="fieldset-legend">Comment</legend>
@@ -75,7 +83,7 @@
     <form method="dialog">
       <button
         class="btn btn-secondary mt-4 w-full"
-        disabled={rollNo.length == 0 || isOverwrite || isInvalid}
+        disabled={rollNo.length == 0 || isOverwrite || isInvalid || isNotAllowed || isBlocked}
         onclick={markPresent}
       >
         Mark Present

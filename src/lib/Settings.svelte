@@ -1,6 +1,8 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
   import {
+    allowlist,
+    blocklist,
     devices,
     fps,
     overwrite,
@@ -61,6 +63,79 @@
     }
   }
 
+  const maxListCount = 99_999
+  const acceptListFiles = 'text/plain,application/json,text/csv'
+  const csvHeader = new Set(['roll', 'rollno', 'rollnumber'])
+
+  function formatListCount(targetList: typeof allowlist | typeof blocklist): string {
+    const count = targetList.value.size
+    return count > maxListCount ? `${maxListCount}+` : count.toString()
+  }
+
+  function resetList(targetList: typeof allowlist | typeof blocklist) {
+    if (targetList.value.size === 0) return
+
+    targetList.value = new Set()
+
+    if (targetList === allowlist) showAlert('settings', 'Allowlist Cleared!')
+    else showAlert('settings', 'Blocklist Cleared!')
+  }
+
+  function normalizeList(items: string[]): Set<string> {
+    return new Set(items.map(item => item.trim()).filter(item => item.length > 0))
+  }
+
+  function addToList(newItems: string[], targetList: typeof allowlist | typeof blocklist) {
+    const normalized = normalizeList(newItems)
+    if (normalized.size === 0) {
+      showAlert('error', 'Empty List!')
+    } else {
+      targetList.value = targetList.value.union(normalized)
+      showAlert('settings', 'List Imported Successfully!')
+    }
+  }
+
+  async function importList(event: Event, targetList: typeof allowlist | typeof blocklist) {
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
+
+    if (!file) return
+    if (!new Set(acceptListFiles.split(',')).has(file.type)) {
+      target.value = ''
+      showAlert('error', 'Invalid File Type!', 'Only plain text, CSV, or JSON files are allowed')
+      return
+    }
+
+    const text = (await file.text()).trim()
+    target.value = ''
+
+    if (file.type === 'application/json') {
+      try {
+        const parsed = JSON.parse(text)
+        if (!Array.isArray(parsed) || parsed.some(item => typeof item !== 'string')) {
+          return showAlert('error', 'Invalid JSON Format!', 'JSON must contain an array of strings')
+        }
+
+        addToList(parsed, targetList)
+      } catch {
+        showAlert('error', 'Invalid JSON File!', 'JSON must contain an array of strings')
+      }
+    } else {
+      let lines = text.split(/[\n\r]+/)
+
+      if (file.type === 'text/csv') {
+        if (lines[0].includes(',')) {
+          return showAlert('error', 'Invalid CSV Format!', 'CSV must contain a single column')
+        }
+        if (csvHeader.has(lines[0].trim().toLowerCase())) {
+          lines = lines.slice(1)
+        }
+      }
+
+      addToList(lines, targetList)
+    }
+  }
+
   async function importBackup(event: Event) {
     const target = event.target as HTMLInputElement
     if (!target.files || target.files.length === 0) return
@@ -80,7 +155,7 @@
       updateLocal()
       showAlert('settings', 'Backup Imported Successfully!')
     } catch (error) {
-      showAlert('webhook-error', 'Invalid Backup File!')
+      showAlert('error', 'Invalid Backup File!')
     }
   }
 
@@ -159,8 +234,52 @@
       <button class="btn btn-primary join-item" onclick={saveRollRegex}>Save</button>
     </div>
 
-    <label class="label flex justify-between">
-      Overwrite
+    <label for="allowlist-file" class="label justify-between">
+      <span class="label-text">Allowlist</span>
+      <div class="flex items-center gap-x-2">
+        <div class="badge badge-info badge-sm badge-soft">{formatListCount(allowlist)}</div>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm btn-soft"
+          onclick={() => resetList(allowlist)}
+        >
+          Reset
+        </button>
+      </div>
+    </label>
+
+    <input
+      id="allowlist-file"
+      type="file"
+      class="file-input file-input-primary"
+      accept={acceptListFiles}
+      onchange={event => importList(event, allowlist)}
+    />
+
+    <label for="blocklist-file" class="label justify-between">
+      <span class="label-text">Blocklist</span>
+      <div class="flex items-center gap-x-2">
+        <div class="badge badge-info badge-sm badge-soft">{formatListCount(blocklist)}</div>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm btn-soft"
+          onclick={() => resetList(blocklist)}
+        >
+          Reset
+        </button>
+      </div>
+    </label>
+
+    <input
+      id="blocklist-file"
+      type="file"
+      class="file-input file-input-primary"
+      accept={acceptListFiles}
+      onchange={event => importList(event, blocklist)}
+    />
+
+    <label class="label justify-between">
+      <span class="label-text">Overwrite</span>
       <input type="checkbox" bind:checked={overwrite.value} class="toggle toggle-primary" />
     </label>
   </fieldset>

@@ -1,7 +1,15 @@
 <script lang="ts">
   import { decode_barcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
-  import { attendance, fps, overwrite, rollRegex, selectedDevice } from './shared.svelte'
+  import {
+    allowlist,
+    attendance,
+    blocklist,
+    fps,
+    overwrite,
+    rollRegex,
+    selectedDevice
+  } from './shared.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -14,7 +22,10 @@
 
   let rollNo = $state('')
   let comment = $state('')
+
   let isOverwrite = $derived(rollNo.length != 0 && !overwrite.value && rollNo in attendance)
+  let isNotAllowed = $derived(rollNo.length != 0 && !(rollNo in allowlist.value))
+  let isBlocked = $derived(rollNo.length != 0 && rollNo in blocklist.value)
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
@@ -150,6 +161,12 @@
       {#if isOverwrite}
         <p class="text-warning mt-1 text-sm">⚠️ Roll No is already marked present</p>
       {/if}
+      {#if isNotAllowed}
+        <p class="text-warning mt-1 text-sm">⚠️ Roll No is not in allowlist</p>
+      {/if}
+      {#if isBlocked}
+        <p class="text-error mt-1 text-sm">⛔ Roll No is in blocklist</p>
+      {/if}
 
       <legend class="fieldset-legend">Comment</legend>
       <input
@@ -164,7 +181,7 @@
     <form method="dialog">
       <button
         class="btn btn-secondary mt-4 w-full"
-        disabled={rollNo.length == 0 || isOverwrite}
+        disabled={rollNo.length == 0 || isOverwrite || isNotAllowed || isBlocked}
         onclick={markPresent}
       >
         Mark Present

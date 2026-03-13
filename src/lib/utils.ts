@@ -77,12 +77,11 @@ export async function postWebhook(url: string, token: string, body: string): Pro
     })
 
     if (response.ok) {
-      showAlert('webhook-success', 'WebHook Success!')
+      showAlert('webhook', 'WebHook Success!')
       return true
-    } else
-      showAlert('webhook-error', 'WebHook Failed!', `${response.status}: ${response.statusText}`)
+    } else showAlert('error', 'WebHook Failed!', `${response.status}: ${response.statusText}`)
   } catch {
-    showAlert('webhook-error', 'WebHook Error!')
+    showAlert('error', 'WebHook Error!')
   }
 
   return false
