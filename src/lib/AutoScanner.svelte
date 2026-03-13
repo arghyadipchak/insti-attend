@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { decode_barcode } from 'rxing-wasm'
+  import { decodeBarcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
   import {
     allowlist,
@@ -46,7 +46,7 @@
 
   export function startScanning() {
     if (intervalId) return
-    intervalId = setInterval(decodeBarcode, 1000 / fps.value)
+    intervalId = setInterval(scanCurrentFrame, 1000 / fps.value)
   }
 
   export function stopScanning() {
@@ -94,7 +94,7 @@
     if (stream) stream.getTracks().forEach(track => track.stop())
   }
 
-  function decodeBarcode() {
+  function scanCurrentFrame() {
     if (!videoElement || videoElement.readyState < 2 || videoElement.videoWidth === 0) return
 
     if (
@@ -105,11 +105,18 @@
 
     ctx.drawImage(videoElement, 0, 0)
 
-    const decoded = decode_barcode(ctx, offscreen.width, offscreen.height)
-    if (!decoded || (!!rollRegex.value && decoded.match(rollRegex.value) === null)) return
+    try {
+      const decoded = decodeBarcode(ctx, offscreen.width, offscreen.height)
+      if (
+        decoded.length === 0 ||
+        rollRegex.value.length == 0 ||
+        decoded.match(rollRegex.value) === null
+      )
+        return
 
-    rollNo = decoded
-    openModal()
+      rollNo = decoded
+      openModal()
+    } catch (err) {}
   }
 
   function openModal() {
@@ -121,6 +128,7 @@
     attendance[rollNo] = { timestamp: new Date(), auto: true, comment: comment }
     rollNo = ''
     comment = ''
+    modal.close()
   }
 </script>
 

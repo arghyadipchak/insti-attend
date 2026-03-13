@@ -33,6 +33,7 @@
     attendance[rollNo] = { timestamp: new Date(), auto: false, comment: comment }
     rollNo = ''
     comment = ''
+    modal.close()
   }
 </script>
 
