@@ -23,9 +23,13 @@
   let rollNo = $state('')
   let comment = $state('')
 
-  let isOverwrite = $derived(rollNo.length != 0 && !overwrite.value && rollNo in attendance)
-  let isNotAllowed = $derived(rollNo.length != 0 && !(rollNo in allowlist.value))
-  let isBlocked = $derived(rollNo.length != 0 && rollNo in blocklist.value)
+  let isOverwrite = $derived(!overwrite.value && rollNo.length != 0 && rollNo in attendance)
+  let isNotAllowed = $derived(
+    allowlist.value.size != 0 && rollNo.length != 0 && !allowlist.value.has(rollNo)
+  )
+  let isBlocked = $derived(
+    blocklist.value.size != 0 && rollNo.length != 0 && blocklist.value.has(rollNo)
+  )
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
