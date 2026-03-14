@@ -2,15 +2,8 @@
   import { decodeBarcode } from 'rxing-wasm'
   import { onDestroy, onMount } from 'svelte'
 
-  import { attendance } from './attendance.svelte'
-  import {
-    allowlist,
-    blocklist,
-    fps,
-    overwrite,
-    rollRegex,
-    selectedDevice
-  } from './settings.svelte'
+  import Modal from './Modal.svelte'
+  import { fps, rollRegex, selectedDevice } from './settings.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -24,18 +17,7 @@
   let offscreen = new OffscreenCanvas(1, 1)
   let ctx = offscreen.getContext('2d', { willReadFrequently: true })!
 
-  let modal: HTMLDialogElement
-
   let rollNo = $state('')
-  let comment = $state('')
-
-  let isOverwrite = $derived(!overwrite.value && rollNo.length != 0 && rollNo in attendance)
-  let isNotAllowed = $derived(
-    allowlist.value.size != 0 && rollNo.length != 0 && !allowlist.value.has(rollNo)
-  )
-  let isBlocked = $derived(
-    blocklist.value.size != 0 && rollNo.length != 0 && blocklist.value.has(rollNo)
-  )
 
   $effect(() => {
     if (selectedDevice.id) startCamera()
@@ -133,6 +115,7 @@
   }
 
   function scanCurrentFrame() {
+    if (rollNo.length != 0) return
     if (!videoElement || videoElement.readyState < 2 || videoElement.videoWidth === 0) return
 
     if (
@@ -149,21 +132,14 @@
       if (decoded.length == 0) return
       if (rollRegex.value && !rollRegex.value.test(decoded)) return
 
+      stopScanning()
       rollNo = decoded
-      openModal()
     } catch (err) {}
   }
 
-  function openModal() {
-    stopScanning()
-    modal.showModal()
-  }
-
-  function markPresent() {
-    attendance[rollNo] = { timestamp: new Date(), auto: true, comment: comment }
+  function closeModal() {
     rollNo = ''
-    comment = ''
-    modal.close()
+    startScanning()
   }
 </script>
 
@@ -196,50 +172,9 @@
 
 <span class="text-lg font-medium">Scan Barcode to Mark Attendance</span>
 
-<dialog bind:this={modal} class="modal modal-bottom" onclose={startScanning}>
-  <div class="modal-box items-center gap-y-4">
-    <form method="dialog">
-      <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-    </form>
-
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend">Roll Number</legend>
-      <input bind:value={rollNo} type="text" class="input w-full" required readonly />
-      {#if isOverwrite}
-        <p class="text-warning mt-1 text-sm">⚠️ Roll No is already marked present</p>
-      {/if}
-      {#if isNotAllowed}
-        <p class="text-warning mt-1 text-sm">⚠️ Roll No is not in allowlist</p>
-      {/if}
-      {#if isBlocked}
-        <p class="text-error mt-1 text-sm">⛔ Roll No is in blocklist</p>
-      {/if}
-
-      <legend class="fieldset-legend">Comment</legend>
-      <input
-        bind:value={comment}
-        type="text"
-        class="input w-full"
-        required
-        placeholder="Enter Comment"
-      />
-    </fieldset>
-
-    <form method="dialog">
-      <button
-        class="btn btn-secondary mt-4 w-full"
-        disabled={rollNo.length == 0 || isOverwrite || isNotAllowed || isBlocked}
-        onclick={markPresent}
-      >
-        Mark Present
-      </button>
-    </form>
-  </div>
-
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
-</dialog>
+{#if rollNo.length != 0}
+  <Modal {rollNo} onClose={closeModal} />
+{/if}
 
 <style>
   .animate-blink {

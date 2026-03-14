@@ -3,13 +3,26 @@
 
   import { showAlert } from './alert.svelte'
   import { attendance } from './attendance.svelte'
-  import { rollRegex, webhook } from './settings.svelte'
+  import { webhook } from './settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
 
-  let attendanceValues = $derived(Object.values(attendance))
-  let totalCount = $derived(attendanceValues.length)
-  let autoCount = $derived(attendanceValues.filter(record => record.auto).length)
-  let manualCount = $derived(totalCount - autoCount)
+  import Modal from './Modal.svelte'
+
+  let attendanceEntries = $derived(Object.entries(attendance))
+  let stats = $derived.by(() => {
+    const total = attendanceEntries.length
+    let auto = 0
+
+    for (const [, record] of attendanceEntries) {
+      if (record.auto) auto++
+    }
+
+    return {
+      total,
+      auto,
+      manual: total - auto
+    }
+  })
 
   function getPercentage(count: number, total: number): string {
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
@@ -51,9 +64,10 @@
   }
 
   function toggle(rollNo: string) {
-    selectedRollNo = selectedRollNo.has(rollNo)
-      ? new Set([...selectedRollNo].filter(rn => rn !== rollNo))
-      : new Set([...selectedRollNo, rollNo])
+    const next = new Set(selectedRollNo)
+    if (next.has(rollNo)) next.delete(rollNo)
+    else next.add(rollNo)
+    selectedRollNo = next
   }
 
   function deleteSelected() {
@@ -62,34 +76,14 @@
     allChecked = false
   }
 
-  let editModal: HTMLDialogElement
-  let oldRollNo = ''
-  let editRollNo = $state('')
-  let editAuto = $state(false)
-  let editComment = $state('')
-  let rollNoValid = $derived(
-    editRollNo.length === 0 || !rollRegex.value || rollRegex.value.test(editRollNo)
-  )
+  let editRollNo = $state<string>('')
 
   function editOpen(rollNo: string) {
-    oldRollNo = rollNo
     editRollNo = rollNo
-    editAuto = attendance[rollNo].auto
-    editComment = attendance[rollNo].comment
-
-    editModal.showModal()
   }
 
-  function editSave() {
-    attendance[editRollNo] = {
-      timestamp: new Date(),
-      auto: editAuto,
-      comment: editComment
-    }
-
-    if (oldRollNo !== editRollNo) delete attendance[oldRollNo]
-
-    editModal.close()
+  function editClose() {
+    editRollNo = ''
   }
 </script>
 
@@ -97,12 +91,12 @@
   <div class="stats bg-base-300 w-fit border border-gray-700">
     <div class="stat text-center">
       <div class="stat-title">Entries</div>
-      <div class="stat-value text-info">{totalCount}</div>
+      <div class="stat-value text-info">{stats.total}</div>
       <div class="stat-desc text-info">
-        Auto: {autoCount} ({getPercentage(autoCount, totalCount)}%)
+        Auto: {stats.auto} ({getPercentage(stats.auto, stats.total)}%)
       </div>
       <div class="stat-desc text-info">
-        Manual: {manualCount} ({getPercentage(manualCount, totalCount)}%)
+        Manual: {stats.manual} ({getPercentage(stats.manual, stats.total)}%)
       </div>
     </div>
 
@@ -151,7 +145,7 @@
       </thead>
 
       <tbody>
-        {#each Object.entries(attendance) as [rollNo, record]}
+        {#each attendanceEntries as [rollNo, record]}
           <tr>
             <th>
               <label>
@@ -171,9 +165,7 @@
             <td>
               <button
                 class="btn btn-xs btn-accent btn-square transform transition-transform duration-300 hover:scale-110"
-                onclick={() => {
-                  editOpen(rollNo)
-                }}
+                onclick={() => editOpen(rollNo)}
               >
                 <Icon icon="tabler:edit" class="h-4 w-4" />
               </button>
@@ -193,48 +185,7 @@
     </button>
   {/if}
 
-  <dialog bind:this={editModal} class="modal modal-bottom">
-    <div class="modal-box">
-      <form method="dialog">
-        <button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-      </form>
-
-      <h3 class="text-lg font-bold">Edit Student Details</h3>
-
-      <fieldset class="fieldset">
-        <legend class="fieldset-legend">Roll Number</legend>
-        <input
-          bind:value={editRollNo}
-          type="text"
-          class="input w-full"
-          placeholder="Enter Roll No"
-        />
-        <span class="text-error font-bold" class:invisible={rollNoValid}>
-          Invalid Roll No! Fix Regex?
-        </span>
-
-        <legend class="fieldset-legend">Auto</legend>
-        <input bind:checked={editAuto} type="checkbox" class="toggle" />
-
-        <legend class="fieldset-legend">Comment</legend>
-        <input
-          bind:value={editComment}
-          type="text"
-          class="input w-full"
-          placeholder="Enter Comment"
-        />
-      </fieldset>
-
-      <form method="dialog" class="mt-4">
-        <button class="btn btn-primary w-full" class:btn-disabled={!rollNoValid} onclick={editSave}>
-          <Icon icon="mdi:content-save" class="h-6 w-6" />
-          <span class="mt-0.5">Save</span>
-        </button>
-      </form>
-    </div>
-
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
+  {#if editRollNo !== ''}
+    <Modal edit rollNo={editRollNo} onClose={editClose} />
+  {/if}
 </div>
