@@ -17,7 +17,7 @@
     "@tsconfig/svelte": "^5.0.8",
     "daisyui": "^5.5.19",
     "rxing-wasm": "workspace:*",
-    "svelte": "^5.53.11",
+    "svelte": "^5.53.12",
     "tailwindcss": "^4.2.1",
     "vite": "^7.3.1",
     "vite-plugin-wasm": "^3.5.0"
