@@ -1,7 +1,8 @@
-ARG RUST_VERSION=1.94
-ARG WASM_PACK_VERSION=0.14.0
-ARG NODE_VERSION=24
-ARG NGINX_VERSION=1.29
+ARG RUST_VERSION=1.95
+ARG WASM_PACK_VERSION=0.15.0
+ARG NODE_VERSION=26.1
+ARG PNPM_VERSION=11.1.2
+ARG NGINX_VERSION=1.31
 
 ARG BUILD_DIR=/app
 
@@ -57,11 +58,19 @@ FROM node:${NODE_VERSION}-slim AS frontend-builder
 ARG BUILD_DIR
 WORKDIR ${BUILD_DIR}
 
-ARG PNPM_HOME="/pnpm"
-ARG PATH="$PNPM_HOME:$PATH"
-RUN corepack enable pnpm
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
+  wget ca-certificates libatomic1 && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
-COPY package.json pnpm-lock.yaml ./
+ARG PNPM_VERSION
+RUN wget -qO- https://get.pnpm.io/install.sh | env PNPM_VERSION=${PNPM_VERSION} bash -s
+
+ARG PNPM_HOME="/root/.local/share/pnpm"
+ARG PATH="$PNPM_HOME/bin:$PATH"
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --from=wasm-builder ${BUILD_DIR}/pkg ./rxing-wasm/pkg
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
