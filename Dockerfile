@@ -1,7 +1,7 @@
-ARG RUST_VERSION=1.95
+ARG RUST_VERSION=1.96
 ARG WASM_PACK_VERSION=0.15.0
-ARG NODE_VERSION=26.2
-ARG PNPM_VERSION=11.2.2
+ARG NODE_VERSION=26.3
+ARG PNPM_VERSION=11.5.2
 ARG NGINX_VERSION=1.31
 
 ARG BUILD_DIR=/app
@@ -73,7 +73,8 @@ ARG PATH="$PNPM_HOME/bin:$PATH"
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --from=wasm-builder ${BUILD_DIR}/pkg ./rxing-wasm/pkg
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --prod --frozen-lockfile --ignore-scripts
 
 COPY . .
 RUN pnpm build

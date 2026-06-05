@@ -2,3 +2,5 @@ packages:
   - rxing-wasm/pkg
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - svelte@5.56.2
