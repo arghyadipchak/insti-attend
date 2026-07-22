@@ -4,6 +4,7 @@
   import { showAlert } from './alert.svelte'
   import {
     allowlist,
+    autofocus,
     blocklist,
     devices,
     fps,
@@ -203,6 +204,11 @@
         {/each}
       </select>
     </div>
+
+    <label class="label justify-between">
+      <span class="label-text">Autofocus</span>
+      <input type="checkbox" bind:checked={autofocus.value} class="toggle toggle-primary" />
+    </label>
 
     <div class="space-y-2">
       <label for="fps-slider" class="label">

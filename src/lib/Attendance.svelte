@@ -13,15 +13,9 @@
     const total = attendanceEntries.length
     let auto = 0
 
-    for (const [, record] of attendanceEntries) {
-      if (record.auto) auto++
-    }
+    for (const [, record] of attendanceEntries) if (record.auto) auto++
 
-    return {
-      total,
-      auto,
-      manual: total - auto
-    }
+    return { total, auto, manual: total - auto }
   })
 
   function getPercentage(count: number, total: number): string {
@@ -30,9 +24,9 @@
 
   function attendanceCSV() {
     let str = 'rollNo,timestamp,auto,comment\n'
-    for (const [rollNo, record] of Object.entries(attendance)) {
+    for (const [rollNo, record] of Object.entries(attendance))
       str += `${rollNo},${toISOStringTZ(record.timestamp)},${record.auto},${record.comment}\n`
-    }
+
     return str
   }
 

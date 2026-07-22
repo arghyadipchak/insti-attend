@@ -3,6 +3,7 @@ export const devices = $state({
 })
 export const selectedDevice = $state({ id: localStorage.getItem('deviceId') || '' })
 
+export const autofocus = $state({ value: localStorage.getItem('autofocus') !== 'false' })
 export const fps = $state({ value: Number(localStorage.getItem('fps') || '10') })
 
 function parseStoredList(key: string): Set<string> {

@@ -3,7 +3,7 @@
   import { onDestroy, onMount } from 'svelte'
 
   import Modal from './Modal.svelte'
-  import { fps, rollRegex, selectedDevice } from './settings.svelte'
+  import { autofocus, fps, rollRegex, selectedDevice } from './settings.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream
@@ -74,9 +74,7 @@
       if (stream) stream.getTracks().forEach(track => track.stop())
 
       const nextStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          deviceId: selectedDevice.id ? { exact: selectedDevice.id } : undefined
-        }
+        video: { deviceId: selectedDevice.id ? { exact: selectedDevice.id } : undefined }
       })
 
       if (isDestroyed || session !== cameraSession) {
@@ -87,12 +85,21 @@
       stream = nextStream
 
       const track = stream.getVideoTracks()[0]
+      const desiredMode = autofocus.value ? 'continuous' : 'one-shot'
+
       // @ts-ignore
-      if (track.getCapabilities().focusDistance)
-        await track.applyConstraints({
+      if (track.getSettings().focusMode === desiredMode) {
+        // @ts-ignore
+      } else if (track.getCapabilities().focusMode?.includes(desiredMode)) {
+        try {
           // @ts-ignore
-          advanced: [{ focusMode: 'continuous' }]
-        })
+          await track.applyConstraints({ advanced: [{ focusMode: desiredMode }] })
+        } catch (err) {
+          console.warn('error applying focus mode:', err)
+        }
+      } else {
+        console.warn(`focus mode "${desiredMode}" not supported!`)
+      }
 
       videoElement.onloadedmetadata = resizeOffscreenCanvas
       videoElement.srcObject = stream

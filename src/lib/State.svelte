@@ -4,6 +4,7 @@
   import { attendance } from './attendance.svelte'
   import {
     allowlist,
+    autofocus,
     blocklist,
     fps,
     overwrite,
@@ -27,6 +28,10 @@
 
   $effect(() => {
     localStorage.setItem('deviceId', selectedDevice.id)
+  })
+
+  $effect(() => {
+    localStorage.setItem('autofocus', autofocus.value.toString())
   })
 
   $effect(() => {
