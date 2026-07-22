@@ -1,6 +1,6 @@
 [package]
 name = "rxing-wasm"
-version = "0.9.0"
+version = "0.8.5"
 edition = "2024"
 
 [lib]
@@ -8,9 +8,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 rxing = {
-  version = "0.9.0",
+  version = "0.8.5",
   default-features = false,
-  features = ["decoders", "encoding_rs", "wasm_support"]
+  features = ["encoding_rs", "wasm_support"]
 }
 wasm-bindgen = "0.2.122"
 web-sys = {

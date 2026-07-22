@@ -1,6 +1,7 @@
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+.zed/
 
 pnpm-debug.log*
 

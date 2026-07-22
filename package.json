@@ -12,22 +12,22 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@iconify/svelte": "^5.2.1",
-    "@sveltejs/vite-plugin-svelte": "^7.1.2",
-    "@tailwindcss/vite": "^4.3.0",
+    "@iconify/svelte": "^5.2.2",
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/svelte": "^5.0.8",
-    "daisyui": "^5.5.20",
-    "rxing-wasm": "link:./rxing-wasm/pkg",
-    "svelte": "^5.56.2",
-    "tailwindcss": "^4.3.0",
-    "vite": "^8.0.16",
+    "daisyui": "^5.7.0",
+    "rxing-wasm": "link:rxing-wasm/pkg",
+    "svelte": "^5.56.7",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.1.5",
     "vite-plugin-wasm": "^3.6.0"
   },
   "devDependencies": {
-    "prettier": "^3.8.3",
-    "prettier-plugin-svelte": "^4.1.0",
-    "prettier-plugin-tailwindcss": "^0.8.0",
-    "svelte-check": "^4.6.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-svelte": "^4.1.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "svelte-check": "^4.7.3",
     "typescript": "^6.0.3"
   }
 }

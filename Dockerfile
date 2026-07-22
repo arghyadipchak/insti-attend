@@ -1,8 +1,8 @@
-ARG RUST_VERSION=1.96
+ARG RUST_VERSION=1.97
 ARG WASM_PACK_VERSION=0.15.0
-ARG NODE_VERSION=26.3
-ARG PNPM_VERSION=11.5.2
-ARG NGINX_VERSION=1.31
+ARG NODE_VERSION=26.5
+ARG PNPM_VERSION=11.12.0
+ARG NGINX_VERSION=1.31.3
 
 ARG BUILD_DIR=/app
 
@@ -15,11 +15,9 @@ ARG BUILD_DIR
 WORKDIR ${BUILD_DIR}
 
 ARG DEBIAN_FRONTEND
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  wget ca-certificates && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG WASM_PACK_VERSION
 ARG TARGETPLATFORM
@@ -58,11 +56,9 @@ FROM node:${NODE_VERSION}-slim AS frontend-builder
 ARG BUILD_DIR
 WORKDIR ${BUILD_DIR}
 
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  wget ca-certificates libatomic1 && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget ca-certificates libatomic1 \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG PNPM_VERSION
 RUN wget -qO- https://get.pnpm.io/install.sh | env PNPM_VERSION=${PNPM_VERSION} bash -s
