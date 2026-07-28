@@ -9,7 +9,11 @@ use web_sys::OffscreenCanvasRenderingContext2d;
 
 const FORMATS: [BarcodeFormat; 2] = [BarcodeFormat::CODE_128, BarcodeFormat::CODE_39];
 
-#[allow(clippy::cast_possible_truncation, clippy::needless_pass_by_value)]
+#[allow(
+    clippy::cast_possible_truncation,
+    clippy::needless_pass_by_value,
+    clippy::similar_names
+)]
 #[wasm_bindgen(js_name = decodeBarcode)]
 /**
 Decodes a `CODE_128` or `CODE_39` barcode from an offscreen canvas region.
@@ -32,7 +36,7 @@ pub fn decode_barcode(
 ) -> Result<String, JsValue> {
     let image_data = context.get_image_data(0.0, 0.0, f64::from(width), f64::from(height))?;
 
-    let luma = image_data
+    let luma_source = image_data
         .data()
         .chunks_exact(4)
         .map(|pixel| match pixel {
@@ -45,7 +49,10 @@ pub fn decode_barcode(
         })
         .collect::<Vec<_>>();
 
-    let mut multi_format_reader = MultiFormatReader::default();
+    let luma8_source = match Luma8LuminanceSource::new(luma_source, width, height) {
+        Ok(source) => source,
+        Err(e) => return Err(JsValue::from_str(&e.to_string())),
+    };
 
     let hints = DecodeHints {
         PossibleFormats: Some(HashSet::from(FORMATS)),
@@ -53,14 +60,11 @@ pub fn decode_barcode(
         ..Default::default()
     };
 
-    let Ok(result) = multi_format_reader.decode_with_hints(
-        &mut BinaryBitmap::new(HybridBinarizer::new(Luma8LuminanceSource::new(
-            luma, width, height,
-        ))),
+    match MultiFormatReader::default().decode_with_hints(
+        &mut BinaryBitmap::new(HybridBinarizer::new(luma8_source)),
         &hints,
-    ) else {
-        return Err(JsValue::from_str("not found"));
-    };
-
-    Ok(result.getText().to_string())
+    ) {
+        Ok(result) => Ok(result.getText().to_string()),
+        Err(e) => Err(JsValue::from_str(&e.to_string())),
+    }
 }
