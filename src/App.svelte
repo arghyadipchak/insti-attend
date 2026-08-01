@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import { theme } from './lib/settings.svelte'
-  import { component, preferDark } from './lib/system.svelte'
+  import { theme } from './lib/stores/settings.svelte'
+  import { component, preferDark } from './lib/stores/system.svelte'
   import { initCamera } from './lib/utils'
 
   import Alert from './lib/Alert.svelte'

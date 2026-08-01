@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
 
-  import { showAlert } from './alert.svelte'
+  import { showAlert } from './stores/alert.svelte'
   import {
     allowlist,
     autofocus,
@@ -14,7 +14,7 @@
     setRollRegex,
     theme,
     webhook
-  } from './settings.svelte'
+  } from './stores/settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
 
   const fpsMax = 60

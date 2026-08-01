@@ -1,9 +1,9 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
 
-  import { showAlert } from './alert.svelte'
-  import { attendance } from './attendance.svelte'
-  import { webhook } from './settings.svelte'
+  import { showAlert } from './stores/alert.svelte'
+  import { attendance } from './stores/attendance.svelte'
+  import { webhook } from './stores/settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
 
   import Modal from './Modal.svelte'

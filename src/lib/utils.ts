@@ -1,5 +1,5 @@
-import { showAlert } from './alert.svelte'
-import { devices, selectedDevice } from './settings.svelte'
+import { showAlert } from './stores/alert.svelte'
+import { devices, selectedDevice } from './stores/settings.svelte'
 
 export async function initCamera() {
   try {

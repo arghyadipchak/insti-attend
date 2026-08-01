@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
 
-  import { devices } from './settings.svelte'
+  import { devices } from './stores/settings.svelte'
 
   import AutoScanner from './AutoScanner.svelte'
   import Modal from './Modal.svelte'

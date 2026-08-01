@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte'
 
-  import { attendance } from './attendance.svelte'
+  import { attendance } from './stores/attendance.svelte'
   import {
     allowlist,
     autofocus,
@@ -12,8 +12,8 @@
     selectedDevice,
     theme,
     webhook
-  } from './settings.svelte'
-  import { preferDark } from './system.svelte'
+  } from './stores/settings.svelte'
+  import { preferDark } from './stores/system.svelte'
 
   $effect(() => {
     localStorage.setItem('theme', theme.value)

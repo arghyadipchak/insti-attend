@@ -2,8 +2,8 @@
   import Icon from '@iconify/svelte'
   import { onMount } from 'svelte'
 
-  import { attendance } from './attendance.svelte'
-  import { allowlist, blocklist, overwrite, rollRegex } from './settings.svelte'
+  import { attendance } from './stores/attendance.svelte'
+  import { allowlist, blocklist, overwrite, rollRegex } from './stores/settings.svelte'
 
   interface Props {
     rollNo?: string
