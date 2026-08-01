@@ -10,3 +10,20 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
 }
+
+/* Light mode only values */
+[data-theme='cupcake'] .navbar,
+[data-theme='cupcake'] .dock {
+  background-color: var(--color-base-200);
+}
+[data-theme='cupcake'] .bg-base-200 {
+  background-color: var(--color-base-100);
+}
+
+/* Top strip color */
+[data-theme='cupcake'] {
+  background-color: var(--color-base-200);
+}
+[data-theme='dim'] {
+  background-color: var(--color-base-100);
+}
