@@ -4,3 +4,9 @@
     cupcake --default,
     dim --prefersdark;
 }
+
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}

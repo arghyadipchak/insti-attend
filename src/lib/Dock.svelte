@@ -7,7 +7,10 @@
   let totalCount = $derived(Object.keys(attendance).length)
 </script>
 
-<nav class="dock bg-base-100 relative">
+<nav
+  class="dock bg-base-100 relative"
+  style="height: calc(4rem + env(safe-area-inset-bottom) + 0.75rem); padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);"
+>
   <button
     class:dock-active={component.selected === 'scanner'}
     onclick={() => (component.selected = 'scanner')}
