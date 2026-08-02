@@ -20,7 +20,7 @@
   }
 </script>
 
-<div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-10">
+<div class="app-panel flex flex-1 flex-col items-center justify-center gap-y-10">
   {#if Object.keys(devices.label).length > 0}
     <AutoScanner bind:this={autoScanner} />
   {:else}

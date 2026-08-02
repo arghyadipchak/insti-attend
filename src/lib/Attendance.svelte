@@ -81,7 +81,7 @@
   }
 </script>
 
-<div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-4 py-4">
+<div class="app-panel flex flex-1 flex-col items-center justify-center gap-y-4 py-4">
   <div class="stats bg-base-300 w-fit border border-gray-700">
     <div class="stat text-center">
       <div class="stat-title">Entries</div>

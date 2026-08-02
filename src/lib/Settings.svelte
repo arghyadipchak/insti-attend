@@ -189,7 +189,7 @@
   }
 </script>
 
-<div class="bg-base-200 flex flex-1 flex-col items-center gap-y-4 overflow-x-auto pb-4">
+<div class="app-panel flex flex-1 flex-col items-center gap-y-4 overflow-x-auto pb-4">
   <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">Camera</legend>
 
