@@ -2,7 +2,9 @@
   import Icon from '@iconify/svelte'
   import { onMount } from 'svelte'
 
-  import { attendance } from './stores/attendance.svelte'
+  import { attendance, eventRecords } from './stores/attendance.svelte'
+  import { currentEvent, events } from './stores/events.svelte'
+  import { seating, selectedRoom } from './stores/seating.svelte'
   import { allowlist, blocklist, overwrite, rollRegex } from './stores/settings.svelte'
 
   interface Props {
@@ -19,9 +21,17 @@
   let comment = ''
   let newComment = $state('')
 
+  let records = $derived(attendance[currentEvent.id] ?? {})
+
+  let isExam = $derived(events.find(e => e.id === currentEvent.id)?.type === 'exam')
+  let assignedSeat = $derived(seating[currentEvent.id]?.[newRollNo])
+  let isWrongRoom = $derived(
+    !!assignedSeat && selectedRoom.value !== '' && assignedSeat.room !== selectedRoom.value
+  )
+
   function initializeFields() {
     newRollNo = rollNo
-    comment = edit ? attendance[rollNo].comment : ''
+    comment = edit ? (records[rollNo]?.comment ?? '') : ''
     newComment = comment
   }
 
@@ -33,7 +43,7 @@
   let isOverwrite = $derived(
     !overwrite.value &&
       newRollNo.length != 0 &&
-      newRollNo in attendance &&
+      newRollNo in records &&
       (!edit || newRollNo !== rollNo)
   )
   let isNotAllowed = $derived(
@@ -53,13 +63,13 @@
   )
 
   function saveRecord() {
-    attendance[newRollNo] = {
+    eventRecords(currentEvent.id)[newRollNo] = {
       timestamp: new Date(),
       auto: !edit && rollNo.length != 0,
       comment: newComment
     }
 
-    if (edit && newRollNo !== rollNo) delete attendance[rollNo]
+    if (edit && newRollNo !== rollNo) delete attendance[currentEvent.id][rollNo]
 
     if (onSubmit) onSubmit()
     modal.close()
@@ -83,6 +93,7 @@
       <legend class="fieldset-legend">Roll Number</legend>
       <input
         bind:value={newRollNo}
+        oninput={() => (newRollNo = newRollNo.toUpperCase())}
         type="text"
         class="input w-full"
         required
@@ -90,17 +101,56 @@
         placeholder="Enter Roll No"
       />
 
+      {#if isExam}
+        <div class="bg-base-200 rounded-box mt-1 flex flex-col gap-1 p-2 text-sm">
+          <p class="flex items-center gap-1">
+            <Icon icon="mdi:seat-outline" class="h-4 w-4 shrink-0" />
+            <span class="font-medium">Seat:</span>
+            <span class={assignedSeat ? '' : 'text-base-content/50'}>
+              {assignedSeat
+                ? `${assignedSeat.room ? assignedSeat.room + ' · ' : ''}${assignedSeat.seat || '—'}`
+                : 'Not assigned'}
+            </span>
+          </p>
+          <p
+            class="flex items-center gap-1 {isWrongRoom ? 'text-warning' : 'text-base-content/60'}"
+          >
+            <Icon icon={isWrongRoom ? 'mdi:alert-outline' : 'mdi:door'} class="h-4 w-4 shrink-0" />
+            <span class="font-medium">Room:</span>
+            <span>
+              {#if !selectedRoom.value}
+                No room selected
+              {:else if !assignedSeat}
+                Not in seating list
+              {:else if isWrongRoom}
+                Assigned to {assignedSeat.room}
+              {:else}
+                In your assigned room
+              {/if}
+            </span>
+          </p>
+        </div>
+      {/if}
+
       {#if isInvalid}
-        <p class="text-warning mt-1 text-sm">⚠️ Roll No is not valid</p>
+        <p class="text-warning mt-1 flex items-center gap-1 text-sm">
+          <Icon icon="mdi:alert-outline" class="h-4 w-4 shrink-0" /> Roll No is not valid
+        </p>
       {/if}
       {#if isOverwrite}
-        <p class="text-warning mt-1 text-sm">⚠️ Roll No is already marked present</p>
+        <p class="text-warning mt-1 flex items-center gap-1 text-sm">
+          <Icon icon="mdi:alert-outline" class="h-4 w-4 shrink-0" /> Roll No is already marked present
+        </p>
       {/if}
       {#if isNotAllowed}
-        <p class="text-warning mt-1 text-sm">⚠️ Roll No is not in allowlist</p>
+        <p class="text-warning mt-1 flex items-center gap-1 text-sm">
+          <Icon icon="mdi:alert-outline" class="h-4 w-4 shrink-0" /> Roll No is not in allowlist
+        </p>
       {/if}
       {#if isBlocked}
-        <p class="text-error mt-1 text-sm">⛔ Roll No is in blocklist</p>
+        <p class="text-error mt-1 flex items-center gap-1 text-sm">
+          <Icon icon="mdi:block-helper" class="h-4 w-4 shrink-0" /> Roll No is in blocklist
+        </p>
       {/if}
 
       <legend class="fieldset-legend">Comment</legend>

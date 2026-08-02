@@ -2,9 +2,10 @@
   import Icon from '@iconify/svelte'
 
   import { attendance } from './stores/attendance.svelte'
+  import { currentEvent } from './stores/events.svelte'
   import { component } from './stores/system.svelte'
 
-  let totalCount = $derived(Object.keys(attendance).length)
+  let totalCount = $derived(Object.keys(attendance[currentEvent.id] ?? {}).length)
 </script>
 
 <nav

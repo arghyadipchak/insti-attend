@@ -2,6 +2,8 @@
   import { onDestroy } from 'svelte'
 
   import { attendance } from './stores/attendance.svelte'
+  import { currentEvent, events } from './stores/events.svelte'
+  import { seating, selectedRoom } from './stores/seating.svelte'
   import {
     allowlist,
     autofocus,
@@ -56,6 +58,22 @@
 
   $effect(() => {
     localStorage.setItem('webhook', JSON.stringify(webhook))
+  })
+
+  $effect(() => {
+    localStorage.setItem('events', JSON.stringify($state.snapshot(events)))
+  })
+
+  $effect(() => {
+    localStorage.setItem('currentEventId', currentEvent.id)
+  })
+
+  $effect(() => {
+    localStorage.setItem('seating', JSON.stringify($state.snapshot(seating)))
+  })
+
+  $effect(() => {
+    localStorage.setItem('selectedRoom', selectedRoom.value)
   })
 
   function deepRead(val: unknown): void {

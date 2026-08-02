@@ -3,12 +3,15 @@
 
   import { showAlert } from './stores/alert.svelte'
   import { attendance } from './stores/attendance.svelte'
+  import { currentEvent, events } from './stores/events.svelte'
   import { webhook } from './stores/settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
 
   import Modal from './Modal.svelte'
 
-  let attendanceEntries = $derived(Object.entries(attendance))
+  let records = $derived(attendance[currentEvent.id] ?? {})
+  let event = $derived(events.find(e => e.id === currentEvent.id))
+  let attendanceEntries = $derived(Object.entries(records))
   let stats = $derived.by(() => {
     const total = attendanceEntries.length
     let auto = 0
@@ -22,10 +25,20 @@
     return total > 0 ? ((count / total) * 100).toFixed(2) : '0.00'
   }
 
+  function csvCell(value: string): string {
+    return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
+  }
+
   function attendanceCSV() {
     let str = 'rollNo,timestamp,auto,comment\n'
-    for (const [rollNo, record] of Object.entries(attendance))
-      str += `${rollNo},${toISOStringTZ(record.timestamp)},${record.auto},${record.comment}\n`
+    for (const [rollNo, record] of attendanceEntries)
+      str +=
+        [
+          csvCell(rollNo),
+          toISOStringTZ(record.timestamp),
+          String(record.auto),
+          csvCell(record.comment)
+        ].join(',') + '\n'
 
     return str
   }
@@ -33,28 +46,32 @@
   const tstampReplacer = (key: string, value: any) =>
     key === 'timestamp' ? toISOStringTZ(new Date(value)) : value
 
+  function slug(text: string): string {
+    return text.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'event'
+  }
+
   function downloadAttendance(type: 'csv' | 'json') {
     const blob =
       type === 'csv'
         ? new Blob([attendanceCSV()], { type: 'text/csv;charset=utf-8;' })
-        : new Blob([JSON.stringify(attendance, tstampReplacer, 2)], {
+        : new Blob([JSON.stringify(records, tstampReplacer, 2)], {
             type: 'application/json;charset=utf-8;'
           })
-    const fname = `attendance-${toISOStringTZ(new Date())}.${type}`
+    const fname = `${slug(event?.name ?? 'event')}-${event?.date ?? ''}.${type}`
 
     download(blob, fname)
-    showAlert('download', `Downloading Attendance!`, fname)
+    showAlert('download', 'Downloading Attendance!', fname)
   }
 
   async function uploadWebhook() {
-    await postWebhook(webhook.url, webhook.authToken, JSON.stringify(attendance, tstampReplacer))
+    await postWebhook(webhook.url, webhook.authToken, JSON.stringify(records, tstampReplacer))
   }
 
   let allChecked = $state(false)
   let selectedRollNo = $state(new Set([] as string[]))
 
   function toggleAll() {
-    selectedRollNo = allChecked ? new Set(Object.keys(attendance)) : new Set([])
+    selectedRollNo = allChecked ? new Set(Object.keys(records)) : new Set([])
   }
 
   function toggle(rollNo: string) {
@@ -65,7 +82,8 @@
   }
 
   function deleteSelected() {
-    for (const rollNo of selectedRollNo) delete attendance[rollNo]
+    const recs = attendance[currentEvent.id]
+    if (recs) for (const rollNo of selectedRollNo) delete recs[rollNo]
     selectedRollNo = new Set([])
     allChecked = false
   }
@@ -139,7 +157,7 @@
       </thead>
 
       <tbody>
-        {#each attendanceEntries as [rollNo, record]}
+        {#each attendanceEntries as [rollNo, record] (rollNo)}
           <tr>
             <th>
               <label>
@@ -172,7 +190,7 @@
 
   {#if selectedRollNo.size > 0}
     <button
-      class="btn btn-sm btn-error btn-square fixed bottom-20 transform transition-transform duration-300 ease-in-out hover:scale-110"
+      class="btn btn-sm btn-error btn-square fixed bottom-24 left-1/2 -translate-x-1/2 transform transition-transform duration-300 ease-in-out hover:scale-110"
       onclick={deleteSelected}
     >
       <Icon icon="mingcute:delete-line" class="h-4 w-4" />

@@ -7,11 +7,15 @@
 
   import Alert from './lib/Alert.svelte'
   import Attendance from './lib/Attendance.svelte'
+  import Confirm from './lib/Confirm.svelte'
   import Dock from './lib/Dock.svelte'
+  import EventBar from './lib/EventBar.svelte'
   import Navbar from './lib/Navbar.svelte'
-  import Scanner from './lib/Scanner.svelte'
   import Settings from './lib/Settings.svelte'
   import State from './lib/State.svelte'
+
+  // lazy loading the scanner
+  const loadScanner = () => import('./lib/Scanner.svelte')
 
   onMount(initCamera)
 </script>
@@ -27,15 +31,22 @@
 >
   <Navbar />
 
+  {#if component.selected === 'scanner' || component.selected === 'attendance'}
+    <EventBar />
+  {/if}
+
   {#if component.selected === 'scanner'}
-    <Scanner />
+    {#await loadScanner() then { default: Scanner }}
+      <Scanner />
+    {/await}
   {:else if component.selected === 'attendance'}
     <Attendance />
   {:else if component.selected === 'settings'}
     <Settings />
   {/if}
 
-  <Alert />
-
   <Dock />
+
+  <Alert />
+  <Confirm />
 </main>
