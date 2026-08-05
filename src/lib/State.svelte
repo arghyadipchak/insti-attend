@@ -15,10 +15,15 @@
     theme,
     webhook
   } from './stores/settings.svelte'
-  import { preferDark } from './stores/system.svelte'
+  import { students } from './stores/students.svelte'
+  import { onboardingSeen, preferDark } from './stores/system.svelte'
 
   $effect(() => {
     localStorage.setItem('theme', theme.value)
+  })
+
+  $effect(() => {
+    localStorage.setItem('onboardingSeen', onboardingSeen.value.toString())
   })
 
   const systemDarkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -66,6 +71,10 @@
 
   $effect(() => {
     localStorage.setItem('currentEventId', currentEvent.id)
+  })
+
+  $effect(() => {
+    localStorage.setItem('students', JSON.stringify($state.snapshot(students)))
   })
 
   $effect(() => {

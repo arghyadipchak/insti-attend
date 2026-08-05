@@ -15,9 +15,22 @@
   import State from './lib/State.svelte'
 
   // lazy loading the scanner
+  const loadDesktop = () => import('./lib/Desktop.svelte')
   const loadScanner = () => import('./lib/Scanner.svelte')
 
-  onMount(initCamera)
+  const desktopQuery = window.matchMedia('(min-width: 1024px)')
+  let isDesktop = $state(desktopQuery.matches)
+
+  onMount(() => {
+    if (!isDesktop) initCamera()
+
+    const onChange = (e: MediaQueryListEvent) => {
+      isDesktop = e.matches
+      if (!isDesktop) initCamera()
+    }
+    desktopQuery.addEventListener('change', onChange)
+    return () => desktopQuery.removeEventListener('change', onChange)
+  })
 </script>
 
 <State />
@@ -29,23 +42,30 @@
     ? 'dim'
     : 'cupcake'}
 >
-  <Navbar />
 
-  {#if component.selected === 'scanner' || component.selected === 'attendance'}
-    <EventBar />
-  {/if}
-
-  {#if component.selected === 'scanner'}
-    {#await loadScanner() then { default: Scanner }}
-      <Scanner />
+  {#if isDesktop}
+    {#await loadDesktop() then { default: Desktop }}
+      <Desktop />
     {/await}
-  {:else if component.selected === 'attendance'}
-    <Attendance />
-  {:else if component.selected === 'settings'}
-    <Settings />
-  {/if}
+  {:else}
+    <Navbar />
+    
+    {#if component.selected === 'scanner' || component.selected === 'attendance'}
+      <EventBar />
+    {/if}
 
-  <Dock />
+    {#if component.selected === 'scanner'}
+      {#await loadScanner() then { default: Scanner }}
+        <Scanner />
+      {/await}
+    {:else if component.selected === 'attendance'}
+      <Attendance />
+    {:else if component.selected === 'settings'}
+      <Settings />
+    {/if}
+
+    <Dock />
+  {/if}
 
   <Alert />
   <Confirm />

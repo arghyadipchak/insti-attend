@@ -22,6 +22,10 @@ button:not(:disabled) {
   background-color: var(--color-base-100);
 }
 
+.attendance-head {
+  background-color: var(--color-base-200);
+}
+
 /* Light mode only values */
 [data-theme='cupcake'] .navbar,
 [data-theme='cupcake'] .dock {
