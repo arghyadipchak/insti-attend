@@ -3,7 +3,7 @@
   import { onDestroy, onMount } from 'svelte'
 
   import Modal from './Modal.svelte'
-  import { autofocus, fps, rollRegex, selectedDevice } from './settings.svelte'
+  import { autofocus, fps, rollRegex, selectedDevice } from './stores/settings.svelte'
 
   let videoElement: HTMLVideoElement
   let stream: MediaStream

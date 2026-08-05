@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onDestroy } from 'svelte'
 
-  import { attendance } from './attendance.svelte'
+  import { attendance } from './stores/attendance.svelte'
+  import { currentEvent, events } from './stores/events.svelte'
+  import { seating, selectedRoom } from './stores/seating.svelte'
   import {
     allowlist,
     autofocus,
@@ -12,11 +14,16 @@
     selectedDevice,
     theme,
     webhook
-  } from './settings.svelte'
-  import { preferDark } from './system.svelte'
+  } from './stores/settings.svelte'
+  import { students } from './stores/students.svelte'
+  import { onboardingSeen, preferDark } from './stores/system.svelte'
 
   $effect(() => {
     localStorage.setItem('theme', theme.value)
+  })
+
+  $effect(() => {
+    localStorage.setItem('onboardingSeen', onboardingSeen.value.toString())
   })
 
   const systemDarkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -56,6 +63,26 @@
 
   $effect(() => {
     localStorage.setItem('webhook', JSON.stringify(webhook))
+  })
+
+  $effect(() => {
+    localStorage.setItem('events', JSON.stringify($state.snapshot(events)))
+  })
+
+  $effect(() => {
+    localStorage.setItem('currentEventId', currentEvent.id)
+  })
+
+  $effect(() => {
+    localStorage.setItem('students', JSON.stringify($state.snapshot(students)))
+  })
+
+  $effect(() => {
+    localStorage.setItem('seating', JSON.stringify($state.snapshot(seating)))
+  })
+
+  $effect(() => {
+    localStorage.setItem('selectedRoom', selectedRoom.value)
   })
 
   function deepRead(val: unknown): void {

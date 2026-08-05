@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
 
-  import { alertClass, alertIcon, alerts, removeAlert } from './alert.svelte'
+  import { alertClass, alertIcon, alerts, removeAlert } from './stores/alert.svelte'
 </script>
 
 <div class="toast toast-top toast-center" style="padding-top: env(safe-area-inset-top) !important;">

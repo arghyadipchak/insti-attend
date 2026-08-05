@@ -4,9 +4,9 @@
 
 <nav class="navbar bg-base-100">
   <div class="flex-1">
-    <a class="btn btn-ghost text-xl" href="/">
+    <a class="btn btn-ghost text-xl" href={import.meta.env.BASE_URL}>
       InstiAttend
-      <span class="text-primary text-xs">v0.1</span>
+      <span class="text-primary text-xs">{__APP_VERSION__}</span>
     </a>
   </div>
   <div class="flex-none">

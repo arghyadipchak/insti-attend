@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
 
-  import { devices } from './settings.svelte'
+  import { devices } from './stores/settings.svelte'
 
   import AutoScanner from './AutoScanner.svelte'
   import Modal from './Modal.svelte'
@@ -20,7 +20,7 @@
   }
 </script>
 
-<div class="bg-base-200 flex flex-1 flex-col items-center justify-center gap-y-10">
+<div class="app-panel flex flex-1 flex-col items-center justify-center gap-y-10">
   {#if Object.keys(devices.label).length > 0}
     <AutoScanner bind:this={autoScanner} />
   {:else}

@@ -1,13 +1,17 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
 
-  import { attendance } from './attendance.svelte'
-  import { component } from './system.svelte'
+  import { attendance } from './stores/attendance.svelte'
+  import { currentEvent } from './stores/events.svelte'
+  import { component } from './stores/system.svelte'
 
-  let totalCount = $derived(Object.keys(attendance).length)
+  let totalCount = $derived(Object.keys(attendance[currentEvent.id] ?? {}).length)
 </script>
 
-<nav class="dock bg-base-100 relative">
+<nav
+  class="dock bg-base-100 relative"
+  style="height: calc(4rem + env(safe-area-inset-bottom) + 0.75rem); padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);"
+>
   <button
     class:dock-active={component.selected === 'scanner'}
     onclick={() => (component.selected = 'scanner')}
