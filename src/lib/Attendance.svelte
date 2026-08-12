@@ -47,7 +47,14 @@
   }
 
   async function uploadWebhook() {
-    await postWebhook(webhook.url, webhook.authToken, JSON.stringify(attendance, tstampReplacer))
+    const data =
+      selectedRollNo.size > 0
+        ? Object.fromEntries(
+            Object.entries(attendance).filter(([rollNo]) => selectedRollNo.has(rollNo))
+          )
+        : attendance
+
+    await postWebhook(webhook.url, webhook.authToken, JSON.stringify(data, tstampReplacer))
   }
 
   let allChecked = $state(false)
