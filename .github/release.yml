@@ -1,0 +1,27 @@
+changelog:
+  categories:
+    - title: "🚀 Features"
+      keywords:
+        - "feat"
+    - title: "🐛 Bug Fixes"
+      keywords:
+        - "fix"
+    - title: "⚡ Performance Improvements"
+      keywords:
+        - "perf"
+    - title: "📝 Documentation"
+      keywords:
+        - "docs"
+    - title: "♻️ Refactoring & Code Style"
+      keywords:
+        - "refactor"
+        - "style"
+    - title: "🧰 Maintenance & CI/CD"
+      keywords:
+        - "chore"
+        - "ci"
+        - "build"
+        - "test"
+    - title: "⏪ Reverts"
+      keywords:
+        - "revert"

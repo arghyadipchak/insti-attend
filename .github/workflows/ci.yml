@@ -1,0 +1,81 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      deployments: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://wasm-bindgen.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install dependencies (builds rxing-wasm)
+        run: pnpm install
+
+      - name: Build static bundle
+        run: pnpm build
+
+      - name: Deploy Preview to Cloudflare Pages
+        if: ${{ github.ref_type == 'branch' }}
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=insti-attend --branch=dev
+
+      - name: Deploy Production to Cloudflare Pages
+        if: ${{ github.ref_type == 'tag' }}
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=insti-attend
+
+      - name: Archive dist build output
+        if: ${{ github.ref_type == 'tag' }}
+        run: |
+          tar -czf insti-attend-${{ github.ref_name }}.tar.gz -C dist .
+          (cd dist && zip -r ../insti-attend-${{ github.ref_name }}.zip .)
+
+      - name: Create GitHub Release
+        if: ${{ github.ref_type == 'tag' }}
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            insti-attend-${{ github.ref_name }}.tar.gz
+            insti-attend-${{ github.ref_name }}.zip
+          generate_release_notes: true
