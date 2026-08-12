@@ -1,25 +1,31 @@
+# Version control
 .git/
 .github/
 .gitignore
 
+# Docker
 .dockerignore
 Dockerfile
 
+# Editors & OS
 .DS_Store
 .vscode/
+.zed/
+.idea/
 
+# Logs
+*.log
 pnpm-debug.log*
+npm-debug.log*
 
+# Build artifacts & dependencies
+dist/
+node_modules/
 rxing-wasm/pkg/
 rxing-wasm/target/
-node_modules/
 
-dist/
-
-rxing-wasm/.rustfmt.toml
+# Config & Documentation
 .prettierignore
-prettier.config.js
-
-Makefile
+prettier.config.ts
 LICENSE
 README.md
