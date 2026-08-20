@@ -1,11 +1,11 @@
 # 📋 Insti Attend
 
-[![CI](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml/badge.svg)](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/arghyadipchak/insti-attend)](https://github.com/arghyadipchak/insti-attend/releases/latest)
-[![Svelte 5](https://img.shields.io/badge/Svelte-v5-orange.svg)](https://svelte.dev/)
-[![Rust WebAssembly](https://img.shields.io/badge/Rust-WASM-blue.svg)](https://www.rust-lang.org/)
-[![Commitizen Friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/arghyadipchak/insti-attend/ci.yml?logo=github-actions&logoColor=white)](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/arghyadipchak/insti-attend?logo=github&logoColor=white&color=0969da)](https://github.com/arghyadipchak/insti-attend/releases/latest)
+[![Svelte 5](https://img.shields.io/badge/Svelte-v5-ff3e00?logo=svelte&logoColor=white)](https://svelte.dev/)
+[![Rust WebAssembly](https://img.shields.io/badge/Rust-WASM-654ff0?logo=webassembly&logoColor=white)](https://webassembly.org/)
+[![Commitizen Friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen?logo=git&logoColor=white)](https://commitizen.github.io/cz-cli/)
+[![License](https://img.shields.io/github/license/arghyadipchak/insti-attend?color=8250df)](LICENSE)
 
 A high-performance, privacy-first attendance recording web application built for **[IIT Bombay](https://www.cse.iitb.ac.in)** powered by real-time camera barcode scanning compiled to WebAssembly
 
@@ -127,4 +127,4 @@ Access the application at `http://localhost:8080`
 
 ## 📄 License
 
-This project is licensed under the **GNU AGPLv3 License** (see [`LICENSE`](LICENSE))
+This project is licensed under the **GNU Affero General Public License v3.0** ([AGPL-3.0](LICENSE))
