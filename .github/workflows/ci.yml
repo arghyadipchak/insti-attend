@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v[0-9]*.[0-9]*.[0-9]*']
+    tags: ['v*.*.*']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -12,13 +12,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+  deployments: write
+
 jobs:
-  deploy:
-    name: CI
+  build-deploy-release:
+    name: Build, Deploy & Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      deployments: write
 
     steps:
       - name: Checkout repository
@@ -26,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Rust toolchain
+      - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
@@ -53,7 +54,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build static bundle
+      - name: Run type check
+        run: pnpm check
+
+      - name: Build production bundle
         run: pnpm build
 
       - name: Deploy to Cloudflare Pages
@@ -79,7 +83,7 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub release
+      - name: Publish GitHub release
         if: ${{ github.ref_type == 'tag' }}
         uses: softprops/action-gh-release@v3
         with:
