@@ -1,37 +1,87 @@
-# Insti Attend
+# 📋 Insti Attend
 
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![Svelte](https://img.shields.io/badge/Svelte-v5-orange.svg)](https://svelte.dev/)
-[![Rust](https://img.shields.io/badge/Rust-WASM-blue.svg)](https://www.rust-lang.org/)
-[![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](LICENSE)
+[![CI](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml/badge.svg)](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml)
+[![Svelte 5](https://img.shields.io/badge/Svelte-v5-orange.svg)](https://svelte.dev/)
+[![Rust WebAssembly](https://img.shields.io/badge/Rust-WASM-blue.svg)](https://www.rust-lang.org/)
+[![Commitizen Friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
 
-An attendance recording application built for **[IIT Bombay](https://www.cse.iitb.ac.in)** using camera barcode scanning.
+A high-performance, privacy-first attendance recording web application built for **[IIT Bombay](https://www.cse.iitb.ac.in)** powered by real-time camera barcode scanning compiled to WebAssembly
 
-🌐 **Live App**: [iattend.arghyac.com](https://iattend.arghyac.com)
+🌐 **Live Application**: [iattend.arghyac.com](https://iattend.arghyac.com)
 
 ---
 
-## ✨ Features
+## ✨ Highlights & Features
 
-- **Barcode Scanning**: Camera barcode scanning powered by a Rust WebAssembly module (`rxing-wasm`)
-- **Attendance Logging**: Log roll numbers automatically via camera scan or manually with comments
-- **Webhook Integration**: Push attendance data to a custom webhook
-- **Data Export**: Export attendance entries as CSV or JSON
-- **Roll Number Filtering**: Filter scanned roll numbers using regex patterns, allowlists, and blocklists
-- **Camera & App Settings**: Configure camera inputs, scanner FPS, autofocus, entry overwriting, and UI theme
+- ⚡ **High-Speed Barcode Scanning**: Powered by a custom Rust WebAssembly module ([`rxing-wasm`](rxing-wasm/)) for instant, client-side barcode decoding directly from your camera stream
+- 📝 **Attendance & Comment Logging**: Automatically record scanned roll numbers, add custom notes/comments per entry, and handle entry overwriting
+- 🔍 **Smart Roll Number Filtering**: Filter scanned barcodes dynamically using custom regex patterns, allowlists, and blocklists
+- 📡 **Webhook Integration**: Push attendance records in real time to your custom API or backend webhook endpoint
+- 📊 **Export Options**: Export attendance datasets to **CSV** or **JSON** with a single click
+- ⚙️ **Camera & Scanner Controls**: Fine-tune camera input selection, scanner frame rate (FPS), autofocus, and dark/light UI themes
+- 🔒 **100% Client-Side Processing**: No image data leaves your device—all barcode processing happens locally inside WASM in your browser
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: [Svelte 5](https://svelte.dev), TypeScript, [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/), [DaisyUI](https://daisyui.com/)
-- **Barcode Engine**: Rust [`rxing`](https://crates.io/crates/rxing) crate compiled to WebAssembly (`rxing-wasm`)
-- **Deployment**: `pnpm`, Docker (Nginx Alpine)
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | [Svelte 5](https://svelte.dev), TypeScript |
+| **Build Tool & Bundler** | [Vite 8](https://vite.dev/) |
+| **Styling & UI** | [Tailwind CSS v4](https://tailwindcss.com/), [DaisyUI 5](https://daisyui.com/) |
+| **Barcode Engine** | Rust [`rxing`](https://crates.io/crates/rxing) crate compiled to WebAssembly (`rxing-wasm`) |
+| **Package Manager** | [pnpm](https://pnpm.io/) |
+| **Container & Proxy** | Docker, Nginx Alpine |
+| **CI/CD & Hosting** | GitHub Actions, Cloudflare Pages |
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Deployment
+
+### Pre-built Release Archive (No Node.js / Rust Required)
+
+Download and serve pre-compiled production web assets (`.tar.gz` or `.zip`) directly from [GitHub Releases](https://github.com/arghyadipchak/insti-attend/releases):
+
+```bash
+# 1. Download release archive
+VERSION="v0.1.0"
+curl -LO "https://github.com/arghyadipchak/insti-attend/releases/download/${VERSION}/insti-attend-${VERSION}.tar.gz"
+
+# 2. Extract into dist folder
+mkdir -p dist
+tar -xzf "insti-attend-${VERSION}.tar.gz" -C dist/
+
+# 3. Serve static bundle with any web server (Python, Node, Caddy, etc.)
+python3 -m http.server 8080 -d dist/
+# or: npx serve dist/
+# or: caddy file-server --root dist/ --listen :8080
+```
+
+Access the application at `http://localhost:8080`
+
+### Docker Container
+
+Build and run using the optimized multi-stage Docker container:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/arghyadipchak/insti-attend.git
+cd insti-attend
+
+# 2. Build Docker image
+docker build -t insti-attend:latest .
+
+# 3. Run container on port 8080
+docker run -d -p 8080:80 --name insti-attend insti-attend:latest
+```
+
+Access the application at `http://localhost:8080`
+
+---
+
+## 💻 Local Development
 
 ### Prerequisites
 
@@ -40,62 +90,40 @@ An attendance recording application built for **[IIT Bombay](https://www.cse.iit
 - [Rust & Cargo](https://www.rust-lang.org/tools/install)
 - [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 
-### Installation
+### Setup Instructions
 
-1. **Clone the repository**:
+1. **Clone the Repository**:
    ```bash
    git clone https://github.com/arghyadipchak/insti-attend.git
    cd insti-attend
    ```
 
-2. **Install dependencies** (automatically builds `rxing-wasm` via `preinstall`):
+2. **Install Dependencies** (Automatically builds `rxing-wasm` via `preinstall`):
    ```bash
    pnpm install
    ```
 
-3. **Start the development server**:
+3. **Start Development Server**:
    ```bash
    pnpm dev
    ```
-   Open `http://localhost:5173` in your browser
+   Open `http://localhost:5173` in your web browser
 
 ---
 
 ## 📜 Available Scripts
 
-| Command | Description |
+| Script | Description |
 | :--- | :--- |
-| `pnpm install` | Builds `rxing-wasm` via `preinstall` hook and installs dependencies |
-| `pnpm dev` | Starts Vite local development server |
-| `pnpm build` | Builds the Vite production bundle in `dist/` |
-| `pnpm preview` | Previews the production build locally |
-| `pnpm format` | Formats code with Prettier and `rustfmt` |
-| `pnpm check` | Runs Svelte type checking (`svelte-check`) |
-
----
-
-## 🐳 Docker Deployment
-
-Build and run with Docker:
-
-```bash
-docker build -t insti-attend .
-docker run -d -p 8080:80 --name insti-attend insti-attend
-```
-
-Access the app at `http://localhost:8080`
-
----
-
-## 📖 Usage
-
-1. **Scan**: Point camera at student ID barcodes to record attendance
-2. **Manage**: Edit comments or remove selected roll numbers
-3. **Webhook**: Push attendance data to a configured webhook endpoint
-4. **Export**: Download attendance records as CSV or JSON
+| `pnpm install` | Installs Node dependencies and builds `rxing-wasm` WebAssembly package |
+| `pnpm dev` | Starts Vite local development server with hot module replacement |
+| `pnpm build` | Compiles the production web bundle into `dist/` |
+| `pnpm preview` | Previews the local production build |
+| `pnpm format` | Formats codebase using Prettier and `rustfmt` |
+| `pnpm check` | Runs Svelte type-checking (`svelte-check`) |
 
 ---
 
 ## 📄 License
 
-Distributed under the GNU AGPLv3 License (see [LICENSE](LICENSE))
+This project is licensed under the **GNU AGPLv3 License** (see [`LICENSE`](LICENSE))
