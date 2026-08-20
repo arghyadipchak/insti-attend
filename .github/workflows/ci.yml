@@ -73,6 +73,9 @@ jobs:
         id: git-cliff
         with:
           args: --latest
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub release
         if: ${{ github.ref_type == 'tag' }}
