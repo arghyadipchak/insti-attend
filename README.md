@@ -1,6 +1,7 @@
 # 📋 Insti Attend
 
 [![CI](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml/badge.svg)](https://github.com/arghyadipchak/insti-attend/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/arghyadipchak/insti-attend)](https://github.com/arghyadipchak/insti-attend/releases/latest)
 [![Svelte 5](https://img.shields.io/badge/Svelte-v5-orange.svg)](https://svelte.dev/)
 [![Rust WebAssembly](https://img.shields.io/badge/Rust-WASM-blue.svg)](https://www.rust-lang.org/)
 [![Commitizen Friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
