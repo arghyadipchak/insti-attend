@@ -12,14 +12,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  deployments: write
-
 jobs:
-  build-deploy-release:
-    name: Build, Deploy & Release
+  build:
+    name: Build
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -60,21 +59,70 @@ jobs:
       - name: Build production bundle
         run: pnpm build
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  preview:
+    name: Deploy Preview
+    needs: build
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref_type == 'branch')
+
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: dist
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=insti-attend ${{ github.ref_type == 'branch' && '--branch=dev' || '' }}
+          command: pages deploy dist --project-name=insti-attend --branch=dev
+
+  production:
+    name: Release & Deploy Production
+    needs: build
+    runs-on: ubuntu-latest
+
+    if: github.ref_type == 'tag'
+
+    permissions:
+      contents: write
+      deployments: write
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=insti-attend --branch=main
 
       - name: Archive build artifacts
-        if: ${{ github.ref_type == 'tag' }}
         run: |
           tar -czf insti-attend-${{ github.ref_name }}.tar.gz -C dist .
           (cd dist && zip -r ../insti-attend-${{ github.ref_name }}.zip .)
 
       - name: Generate release notes
-        if: ${{ github.ref_type == 'tag' }}
         uses: orhun/git-cliff-action@v4
         id: git-cliff
         with:
@@ -84,7 +132,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish GitHub release
-        if: ${{ github.ref_type == 'tag' }}
         uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.git-cliff.outputs.content }}
