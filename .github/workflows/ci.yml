@@ -12,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PROJECT_NAME: insti-attend
+
 jobs:
   build:
     name: Build
@@ -62,7 +65,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: dist
+          name: build-dist
           path: dist/
           retention-days: 1
 
@@ -71,7 +74,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    if: github.event_name == 'workflow_dispatch' ||
+    if: |
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'push' && github.ref_type == 'branch')
 
     permissions:
@@ -82,7 +86,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v5
         with:
-          name: dist
+          name: build-dist
           path: dist
 
       - name: Deploy to Cloudflare Pages
@@ -90,7 +94,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=insti-attend --branch=dev
+          command: >-
+            pages deploy dist
+              --project-name=${{ env.PROJECT_NAME }}
+              --branch=dev
+              --commit-hash=${{ github.sha }}
+              --commit-message="${{ github.event.head_commit.message }}"
 
   production:
     name: Release & Deploy Production
@@ -107,7 +116,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
-          name: dist
+          name: build-dist
           path: dist
 
       - name: Deploy to Cloudflare Pages
@@ -115,12 +124,17 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=insti-attend --branch=main
+          command: >-
+            pages deploy dist
+            --project-name=${{ env.PROJECT_NAME }}
+            --branch=main
+            --commit-hash=${{ github.sha }}
+            --commit-message=${{ github.ref_name }}
 
       - name: Archive build artifacts
         run: |
-          tar -czf insti-attend-${{ github.ref_name }}.tar.gz -C dist .
-          (cd dist && zip -r ../insti-attend-${{ github.ref_name }}.zip .)
+          tar -czf ${{ env.PROJECT_NAME }}-${{ github.ref_name }}.tar.gz -C dist .
+          (cd dist && zip -r ../${{ env.PROJECT_NAME }}-${{ github.ref_name }}.zip .)
 
       - name: Generate release notes
         uses: orhun/git-cliff-action@v4
@@ -136,5 +150,5 @@ jobs:
         with:
           body: ${{ steps.git-cliff.outputs.content }}
           files: |
-            insti-attend-${{ github.ref_name }}.tar.gz
-            insti-attend-${{ github.ref_name }}.zip
+            ${{ env.PROJECT_NAME }}-${{ github.ref_name }}.tar.gz
+            ${{ env.PROJECT_NAME }}-${{ github.ref_name }}.zip
