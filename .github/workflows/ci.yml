@@ -43,6 +43,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/setup@v2
         with:
+          version: ^11.0.0
           runtime: node@lts
           cache: true
 
@@ -84,6 +85,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/setup@v2
         with:
+          version: ^11.0.0
           runtime: node@lts
           cache: true
           install: false
@@ -121,6 +123,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/setup@v2
         with:
+          version: ^11.0.0
           runtime: node@lts
           cache: true
           install: false
