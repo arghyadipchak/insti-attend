@@ -7,7 +7,7 @@
 [![Commitizen Friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen?logo=git&logoColor=white)](https://commitizen.github.io/cz-cli/)
 [![License](https://img.shields.io/github/license/arghyadipchak/insti-attend?color=8250df)](LICENSE)
 
-A high-performance, privacy-first attendance recording web application built for **[IIT Bombay](https://www.cse.iitb.ac.in)** powered by real-time camera barcode scanning compiled to WebAssembly
+A high-performance, privacy-first attendance recording web application built for **[IIT Bombay](https://www.cse.iitb.ac.in)** powered by real-time barcode scanning in Rust WebAssembly
 
 🌐 **Live Application**: [iattend.arghyac.com](https://iattend.arghyac.com)
 
@@ -27,15 +27,15 @@ A high-performance, privacy-first attendance recording web application built for
 
 ## 🛠️ Tech Stack
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend Framework** | [Svelte 5](https://svelte.dev), TypeScript |
-| **Build Tool & Bundler** | [Vite 8](https://vite.dev/) |
-| **Styling & UI** | [Tailwind CSS v4](https://tailwindcss.com/), [DaisyUI 5](https://daisyui.com/) |
-| **Barcode Engine** | Rust [`rxing`](https://crates.io/crates/rxing) crate compiled to WebAssembly (`rxing-wasm`) |
-| **Package Manager** | [pnpm](https://pnpm.io/) |
-| **Container & Proxy** | Docker, Nginx Alpine |
-| **CI/CD & Hosting** | GitHub Actions, Cloudflare Pages |
+| Layer                    | Technologies                                                                                |
+| :----------------------- | :------------------------------------------------------------------------------------------ |
+| **Frontend Framework**   | [Svelte 5](https://svelte.dev), TypeScript                                                  |
+| **Build Tool & Bundler** | [Vite 8](https://vite.dev/)                                                                 |
+| **Styling & UI**         | [Tailwind CSS v4](https://tailwindcss.com/), [DaisyUI 5](https://daisyui.com/)              |
+| **Barcode Engine**       | Rust [`rxing`](https://crates.io/crates/rxing) crate compiled to WebAssembly (`rxing-wasm`) |
+| **Package Manager**      | [pnpm](https://pnpm.io/)                                                                    |
+| **Container & Proxy**    | Docker, Nginx Alpine                                                                        |
+| **CI/CD & Hosting**      | GitHub Actions, Cloudflare Pages                                                            |
 
 ---
 
@@ -94,34 +94,43 @@ Access the application at `http://localhost:8080`
 ### Setup Instructions
 
 1. **Clone the Repository**:
+
    ```bash
    git clone https://github.com/arghyadipchak/insti-attend.git
    cd insti-attend
    ```
 
 2. **Install Dependencies** (Automatically builds `rxing-wasm` via `preinstall`):
+
    ```bash
    pnpm install
    ```
 
 3. **Start Development Server**:
+
    ```bash
    pnpm dev
    ```
+
    Open `http://localhost:5173` in your web browser
 
 ---
 
 ## 📜 Available Scripts
 
-| Script | Description |
-| :--- | :--- |
-| `pnpm install` | Installs Node dependencies and builds `rxing-wasm` WebAssembly package |
-| `pnpm dev` | Starts Vite local development server with hot module replacement |
-| `pnpm build` | Compiles the production web bundle into `dist/` |
-| `pnpm preview` | Previews the local production build |
-| `pnpm format` | Formats codebase using Prettier and `rustfmt` |
-| `pnpm check` | Runs Svelte type-checking (`svelte-check`) |
+| Script              | Description                                                             |
+| :------------------ | :---------------------------------------------------------------------- |
+| `pnpm install`      | Installs Node dependencies and builds `rxing-wasm` WebAssembly package  |
+| `pnpm dev`          | Starts Vite local development server with hot module replacement        |
+| `pnpm build`        | Compiles the production web bundle into `dist/`                         |
+| `pnpm build:wasm`   | Compiles `rxing-wasm` WebAssembly package directly via `wasm-pack`      |
+| `pnpm preview`      | Previews the local production build                                     |
+| `pnpm check`        | Runs Svelte type-checking (`svelte-check`)                              |
+| `pnpm lint`         | Runs all lint and type checks (`svelte-check` and `markdownlint-cli2`)  |
+| `pnpm lint:md`      | Checks Markdown files for style and lint violations                     |
+| `pnpm format`       | Formats the entire codebase using Prettier, markdownlint, and `rustfmt` |
+| `pnpm format:check` | Checks code formatting without writing files                            |
+| `pnpm format:md`    | Formats and auto-fixes Markdown files with Prettier and markdownlint    |
 
 ---
 
