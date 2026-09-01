@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import { theme } from './lib/settings.svelte'
-  import { component, preferDark } from './lib/system.svelte'
+  import { component, getResolvedTheme } from './lib/system.svelte'
   import { initCamera } from './lib/utils'
 
   import Alert from './lib/Alert.svelte'
@@ -19,11 +18,9 @@
 <State />
 
 <main
-  class="flex flex-col"
+  class="flex w-full flex-col overflow-x-hidden"
   style="height: calc(100dvh + env(safe-area-inset-bottom)); padding-top: env(safe-area-inset-top);"
-  data-theme={(theme.value === 'system' && preferDark.value) || theme.value === 'dark'
-    ? 'dim'
-    : 'cupcake'}
+  data-theme={getResolvedTheme()}
 >
   <Navbar />
 

@@ -57,10 +57,35 @@ interface WebHook {
 }
 export const webhook = $state<WebHook>(JSON.parse(localStorage.getItem('webhook') || '{}'))
 
-interface Theme {
-  value: 'system' | 'light' | 'dark'
+export type ThemeMode = 'system' | 'light' | 'dark'
+
+export interface ThemeOption {
+  value: ThemeMode
+  label: string
+  icon: string
 }
 
-export const theme = $state<Theme>({
-  value: (localStorage.getItem('theme') as Theme['value'] | null) || 'system'
+export const THEME_OPTIONS: readonly ThemeOption[] = [
+  { value: 'system', label: 'System', icon: 'lucide:monitor' },
+  { value: 'light', label: 'Light', icon: 'lucide:sun' },
+  { value: 'dark', label: 'Dark', icon: 'lucide:moon' }
+]
+
+export const theme = $state<{ value: ThemeMode }>({
+  value: (localStorage.getItem('theme') as ThemeMode | null) || 'system'
 })
+
+export function cycleTheme() {
+  if (theme.value === 'system') {
+    theme.value = 'light'
+  } else if (theme.value === 'light') {
+    theme.value = 'dark'
+  } else {
+    theme.value = 'system'
+  }
+}
+
+export function getThemeIcon(mode: ThemeMode): string {
+  const option = THEME_OPTIONS.find(opt => opt.value === mode)
+  return option ? option.icon : 'lucide:monitor'
+}
