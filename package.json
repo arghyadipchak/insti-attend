@@ -1,15 +1,50 @@
 {
   "name": "insti-attend",
-  "private": true,
   "version": "0.1.0",
+  "private": true,
+  "description": "A high-performance, privacy-first attendance recording web application built for IIT Bombay powered by real-time barcode scanning in Rust WebAssembly",
+  "keywords": [
+    "attendance",
+    "barcode-scanner",
+    "svelte",
+    "wasm"
+  ],
+  "homepage": "https://github.com/arghyadipchak/insti-attend",
+  "bugs": {
+    "url": "https://github.com/arghyadipchak/insti-attend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arghyadipchak/insti-attend.git"
+  },
+  "license": "AGPL-3.0-only",
+  "author": {
+    "name": "Arghyadip Chakraborty",
+    "email": "dev@arghyac.com",
+    "url": "https://github.com/arghyadipchak",
+    "website": "https://arghyac.com"
+  },
+  "contributors": [
+    {
+      "name": "Debojeet Das",
+      "email": "debojeetofficial@gmail.com",
+      "url": "https://github.com/rickydebojeet",
+      "website": "https://debojeet.com"
+    }
+  ],
   "type": "module",
   "scripts": {
     "preinstall": "wasm-pack build --release rxing-wasm",
     "dev": "vite",
     "build": "vite build",
+    "build:wasm": "wasm-pack build --release rxing-wasm",
     "preview": "vite preview",
     "check": "svelte-check",
-    "format": "prettier --write . && rustfmt rxing-wasm/src/*.rs"
+    "lint": "pnpm check && pnpm lint:md",
+    "lint:md": "markdownlint-cli2 '**/*.md'",
+    "format": "prettier --write . && markdownlint-cli2 --fix '**/*.md' && rustfmt rxing-wasm/src/*.rs",
+    "format:check": "prettier --check . && markdownlint-cli2 '**/*.md'",
+    "format:md": "prettier --write '**/*.md' && markdownlint-cli2 --fix '**/*.md'"
   },
   "dependencies": {
     "@iconify/svelte": "^5.2.2",
@@ -24,10 +59,12 @@
     "vite-plugin-wasm": "^3.6.0"
   },
   "devDependencies": {
+    "markdownlint-cli2": "^0.23.2",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^4.1.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "svelte-check": "^4.7.6",
     "typescript": "^6.0.3"
-  }
+  },
+  "packageManager": "pnpm@12.0.0"
 }
