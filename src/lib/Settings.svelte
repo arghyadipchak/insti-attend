@@ -13,6 +13,7 @@
     selectedDevice,
     setRollRegex,
     theme,
+    THEME_OPTIONS,
     webhook
   } from './settings.svelte'
   import { download, postWebhook, toISOStringTZ } from './utils'
@@ -61,6 +62,9 @@
 
   type Backup = {
     rollRegex?: string
+    allowlist?: string[]
+    blocklist?: string[]
+    overwrite?: boolean
     webhook?: {
       url: string
       authToken?: string
@@ -146,6 +150,7 @@
 
     const file = target.files[0]
     const text = await file.text()
+    target.value = ''
 
     try {
       const backup = JSON.parse(text) as Backup
@@ -158,8 +163,24 @@
         }
       }
 
+      if (Array.isArray(backup.allowlist)) {
+        allowlist.value = normalizeList(
+          backup.allowlist.filter((item): item is string => typeof item === 'string')
+        )
+      }
+
+      if (Array.isArray(backup.blocklist)) {
+        blocklist.value = normalizeList(
+          backup.blocklist.filter((item): item is string => typeof item === 'string')
+        )
+      }
+
+      if (typeof backup.overwrite === 'boolean') {
+        overwrite.value = backup.overwrite
+      }
+
       if (backup.webhook) {
-        webhook.url = backup.webhook?.url
+        webhook.url = backup.webhook?.url || ''
         webhook.authToken = backup.webhook?.authToken || ''
       }
 
@@ -176,6 +197,9 @@
   function exportBackup() {
     const backup: Backup = {
       rollRegex: rollRegex.value?.source || '',
+      allowlist: Array.from(allowlist.value),
+      blocklist: Array.from(blocklist.value),
+      overwrite: overwrite.value,
       webhook: webhook
     }
 
@@ -189,7 +213,9 @@
   }
 </script>
 
-<div class="bg-base-200 flex flex-1 flex-col items-center gap-y-4 overflow-x-auto pb-4">
+<div
+  class="bg-base-200 flex w-full flex-1 flex-col items-center gap-y-4 overflow-x-hidden overflow-y-auto pb-4"
+>
   <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">Camera</legend>
 
@@ -311,7 +337,7 @@
         <span class="label-text">URL</span>
       </label>
       <label class="input validator">
-        <Icon icon="meteor-icons:link" />
+        <Icon icon="lucide:link-2" />
         <input
           id="webhook-url"
           type="url"
@@ -329,20 +355,26 @@
         <span class="badge badge-neutral badge-xs">Optional</span>
       </label>
       <label class="input">
-        <Icon icon="solar:key-bold" />
+        <Icon icon="lucide:key-round" />
         <input id="webhook-auth" type="url" placeholder="Token" bind:value={localWebhookToken} />
       </label>
     </div>
 
     <div class="flex justify-evenly">
-      <button class="btn bg-primary text-primary-content" onclick={testWebhook}>
-        <Icon icon="mdi:webhook" class="h-5 w-5" />
-        <span class="mt-0.5">Test</span>
+      <button
+        class="btn bg-primary text-primary-content inline-flex items-center gap-x-2"
+        onclick={testWebhook}
+      >
+        <Icon icon="lucide:webhook" class="h-4.5 w-4.5" />
+        <span>Test</span>
       </button>
 
-      <button class="btn bg-primary text-primary-content" onclick={saveWebhook}>
-        <Icon icon="mdi:content-save" class="h-5 w-5" />
-        <span class="mt-0.5">Save</span>
+      <button
+        class="btn bg-primary text-primary-content inline-flex items-center gap-x-2"
+        onclick={saveWebhook}
+      >
+        <Icon icon="lucide:save" class="h-4.5 w-4.5" />
+        <span>Save</span>
       </button>
     </div>
   </fieldset>
@@ -350,34 +382,19 @@
   <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-4 border border-gray-700 p-4">
     <legend class="fieldset-legend">Theme</legend>
 
-    <div class="join join-horizontal mx-auto grid grid-cols-3">
-      <input
-        type="radio"
-        name="theme-buttons"
-        class="btn theme-controller join-item outline-0!"
-        class:btn-primary={theme.value === 'system'}
-        aria-label="System"
-        value="system"
-        bind:group={theme.value}
-      />
-      <input
-        type="radio"
-        name="theme-buttons"
-        class="btn theme-controller join-item outline-0!"
-        class:btn-primary={theme.value === 'light'}
-        aria-label="Light"
-        value="light"
-        bind:group={theme.value}
-      />
-      <input
-        type="radio"
-        name="theme-buttons"
-        class="btn theme-controller join-item outline-0!"
-        class:btn-primary={theme.value === 'dark'}
-        aria-label="Dark"
-        value="dark"
-        bind:group={theme.value}
-      />
+    <div class="bg-base-200 grid w-full grid-cols-3 gap-1 rounded-lg p-1">
+      {#each THEME_OPTIONS as opt}
+        <button
+          type="button"
+          class="btn btn-sm flex items-center justify-center gap-x-1.5 border-0 px-2 transition-all duration-200"
+          class:btn-primary={theme.value === opt.value}
+          class:btn-ghost={theme.value !== opt.value}
+          onclick={() => (theme.value = opt.value)}
+        >
+          <Icon icon={opt.icon} class="h-4 w-4 shrink-0" />
+          <span class="text-sm font-medium">{opt.label}</span>
+        </button>
+      {/each}
     </div>
   </fieldset>
 
@@ -393,32 +410,84 @@
     />
 
     <div class="flex justify-evenly">
-      <button class="btn bg-primary text-primary-content" onclick={() => fileInput.click()}>
-        <Icon icon="fa6-solid:file-import" class="h-4 w-4" />
-        <span class="mt-0.5">Import</span>
+      <button
+        class="btn bg-primary text-primary-content inline-flex items-center gap-x-2"
+        onclick={() => fileInput.click()}
+      >
+        <Icon icon="lucide:file-down" class="h-4.5 w-4.5" />
+        <span>Import</span>
       </button>
 
-      <button class="btn bg-primary text-primary-content" onclick={exportBackup}>
-        <Icon icon="fa6-solid:file-export" class="h-4 w-4" />
-        <span class="mt-0.5">Export</span>
+      <button
+        class="btn bg-primary text-primary-content inline-flex items-center gap-x-2"
+        onclick={exportBackup}
+      >
+        <Icon icon="lucide:file-up" class="h-4.5 w-4.5" />
+        <span>Export</span>
       </button>
     </div>
   </fieldset>
 
-  <span class="mt-auto flex gap-x-1">
-    Made with
-    <Icon icon="mdi:heart" class="mt-1 text-red-500" />
-    by
-    <a href="https://github.com/arghyadipchak" class="group">
-      Arghyadip
-      <span class="bg-accent block h-0.5 max-w-0 transition-all duration-500 group-hover:max-w-full"
-      ></span>
+  <fieldset class="fieldset bg-base-300 rounded-box w-xs gap-y-3 border border-gray-700 p-4">
+    <legend class="fieldset-legend">About</legend>
+
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-semibold">InstiAttend</span>
+      <span class="badge badge-primary badge-xs">v{__APP_VERSION__}</span>
+    </div>
+
+    <a
+      href={__APP_REPO__}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn btn-neutral btn-sm flex w-full items-center justify-center gap-x-2"
+    >
+      <Icon icon="lucide:github" class="h-4 w-4" />
+      <span>GitHub Repository</span>
+      <Icon icon="lucide:external-link" class="h-3 w-3 opacity-60" />
     </a>
-    &
-    <a href="https://github.com/rickydebojeet" class="group">
-      Debojeet
-      <span class="bg-accent block h-0.5 max-w-0 transition-all duration-500 group-hover:max-w-full"
-      ></span>
-    </a>
-  </span>
+
+    <div class="flex flex-col gap-y-2">
+      <span class="text-base-content/70 text-xs font-medium">Developers</span>
+
+      {#each __APP_DEVELOPERS__ as dev}
+        <div class="bg-base-200 flex items-center justify-between rounded-lg px-3 py-2">
+          <span class="text-sm font-medium">{dev.name}</span>
+          <div class="flex items-center gap-x-1">
+            {#if dev.url}
+              <a
+                href={dev.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-ghost btn-xs btn-circle"
+                aria-label="{dev.name}'s GitHub"
+              >
+                <Icon icon="lucide:github" class="h-4 w-4" />
+              </a>
+            {/if}
+            {#if dev.website}
+              <a
+                href={dev.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-ghost btn-xs btn-circle"
+                aria-label="{dev.name}'s Website"
+              >
+                <Icon icon="lucide:globe" class="h-4 w-4" />
+              </a>
+            {/if}
+            {#if dev.email}
+              <a
+                href="mailto:{dev.email}"
+                class="btn btn-ghost btn-xs btn-circle"
+                aria-label="Email {dev.name}"
+              >
+                <Icon icon="lucide:mail" class="h-4 w-4" />
+              </a>
+            {/if}
+          </div>
+        </div>
+      {/each}
+    </div>
+  </fieldset>
 </div>
