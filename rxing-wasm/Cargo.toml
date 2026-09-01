@@ -15,9 +15,9 @@ rxing = {
   default-features = false,
   features = ["decoders", "encoding_rs", "oned", "wasm_support"]
 }
-wasm-bindgen = "0.2.126"
+wasm-bindgen = "0.2.127"
 web-sys = {
-  version = "0.3.103",
+  version = "0.3.104",
   features = ["ImageData", "OffscreenCanvasRenderingContext2d"]
 }
 
