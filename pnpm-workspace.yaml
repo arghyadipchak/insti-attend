@@ -1,5 +1,3 @@
-packages:
-  - rxing-wasm/pkg
 allowBuilds:
   esbuild: true
   workerd: true
