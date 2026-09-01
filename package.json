@@ -1,6 +1,6 @@
 {
   "name": "insti-attend",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "A high-performance, privacy-first attendance recording web application built for IIT Bombay powered by real-time barcode scanning in Rust WebAssembly",
   "keywords": [
