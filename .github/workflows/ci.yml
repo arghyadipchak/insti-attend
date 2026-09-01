@@ -95,7 +95,11 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=${{ env.PROJECT_NAME }} --branch=dev
+          command: >-
+            pages deploy dist
+            --project-name=${{ env.PROJECT_NAME }}
+            --branch=dev
+            --commit-dirty=true
 
   production:
     name: Release & Deploy Production
@@ -138,6 +142,7 @@ jobs:
             --project-name=${{ env.PROJECT_NAME }}
             --branch=main
             --commit-message=${{ github.ref_name }}
+            --commit-dirty=true
 
       - name: Archive build artifacts
         run: |
