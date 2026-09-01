@@ -12,7 +12,7 @@ body = """
 
 ### {{ group | striptags | trim | upper_first }}
 {% for commit in commits %}
-- {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+- {% if commit.scope and (commit.scope != "deps" or group is not containing("Dependencies")) %}*({{ commit.scope }})* {% endif %}\
     {% if commit.breaking %}[**breaking**] {% endif %}\
     {{ commit.message | upper_first }} \
     ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}/commit/{{ commit.id }}))\
@@ -47,13 +47,13 @@ commit_parsers = [
   { message = "^style", group = "<!-- 5 -->🎨 Styling" },
   { message = "^test", group = "<!-- 6 -->🧪 Testing" },
   { message = "^chore\\(release\\): prepare for", skip = true },
-  { message = "^chore\\(deps.*\\)", skip = true },
+  { message = "^chore\\(deps.*\\)|^build\\(deps.*\\)", group = "<!-- 7 -->📦 Dependencies" },
   { message = "^chore\\(pr\\)", skip = true },
   { message = "^chore\\(pull\\)", skip = true },
-  { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
-  { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
-  { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
-  { message = ".*", group = "<!-- 10 -->💼 Other" },
+  { message = "^chore|^ci|^build", group = "<!-- 8 -->⚙️ Miscellaneous Tasks" },
+  { body = ".*security", group = "<!-- 9 -->🛡️ Security" },
+  { message = "^revert", group = "<!-- 10 -->◀️ Revert" },
+  { message = ".*", group = "<!-- 11 -->💼 Other" },
 ]
 filter_commits = false
 fail_on_unmatched_commit = false
