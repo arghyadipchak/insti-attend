@@ -12,7 +12,7 @@
     class:dock-active={component.selected === 'scanner'}
     onclick={() => (component.selected = 'scanner')}
   >
-    <Icon icon="mdi:credit-card-scan" class="h-6 w-6" />
+    <Icon icon="lucide:scan-line" class="h-6 w-6" />
     <span class="dock-label">Scan ID</span>
   </button>
 
@@ -21,7 +21,7 @@
     onclick={() => (component.selected = 'attendance')}
   >
     <div class="indicator">
-      <Icon icon="ph:student" class="h-6 w-6" />
+      <Icon icon="lucide:graduation-cap" class="h-6 w-6" />
       {#if totalCount > 0}
         <span class="badge badge-sm indicator-item bg-accent text-accent-content mt-1">
           {totalCount}
@@ -35,7 +35,7 @@
     class:dock-active={component.selected === 'settings'}
     onclick={() => (component.selected = 'settings')}
   >
-    <Icon icon="solar:settings-outline" class="h-6 w-6" />
+    <Icon icon="lucide:settings" class="h-6 w-6" />
     <span class="dock-label">Settings</span>
   </button>
 </nav>

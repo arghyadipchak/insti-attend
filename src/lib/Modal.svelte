@@ -110,8 +110,8 @@
     <form method="dialog" class="mt-4">
       {#if edit}
         <button class="btn btn-primary w-full" disabled={disableEdit} onclick={saveRecord}>
-          <Icon icon="mdi:content-save" class="h-6 w-6" />
-          <span class="mt-0.5">Save</span>
+          <Icon icon="lucide:save" class="h-5 w-5" />
+          <span>Save</span>
         </button>
       {:else}
         <button class="btn btn-secondary w-full" disabled={disableEdit} onclick={saveRecord}>

@@ -47,12 +47,12 @@ export function alertIcon(type: Alert['type']): string {
   switch (type) {
     case 'error':
     case 'warning':
-      return 'mingcute:alert-line'
+      return 'lucide:alert-triangle'
     case 'settings':
-      return 'mdi:content-save'
+      return 'lucide:save'
     case 'download':
-      return 'fa6-solid:download'
+      return 'lucide:download'
     case 'webhook':
-      return 'mdi:webhook'
+      return 'lucide:webhook'
   }
 }

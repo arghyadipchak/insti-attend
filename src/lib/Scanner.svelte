@@ -31,8 +31,8 @@
     class="btn bg-primary text-primary-content transform transition-transform duration-300 ease-in-out hover:scale-110"
     onclick={openManualModal}
   >
-    <Icon icon="mdi:pen" class="h-5 w-5" />
-    <span class="mt-0.5">Manual Entry</span>
+    <Icon icon="lucide:square-pen" class="h-5 w-5" />
+    <span>Manual Entry</span>
   </button>
 
   {#if isManualModalOpen}

@@ -104,20 +104,29 @@
     <div class="stat text-center">
       <div class="stat-title">Export</div>
       <div class="stat-actions">
-        <button class="btn btn-xs btn-success" onclick={() => downloadAttendance('csv')}>
-          <Icon icon="fa6-solid:download" class="h-3 w-3" />
-          <span class="mt-1">CSV</span>
+        <button
+          class="btn btn-xs btn-success inline-flex items-center gap-1"
+          onclick={() => downloadAttendance('csv')}
+        >
+          <Icon icon="lucide:download" class="h-3.5 w-3.5" />
+          <span>CSV</span>
         </button>
-        <button class="btn btn-xs btn-success" onclick={() => downloadAttendance('json')}>
-          <Icon icon="fa6-solid:download" class="h-3 w-3" />
-          <span class="mt-1">JSON</span>
+        <button
+          class="btn btn-xs btn-success inline-flex items-center gap-1"
+          onclick={() => downloadAttendance('json')}
+        >
+          <Icon icon="lucide:download" class="h-3.5 w-3.5" />
+          <span>JSON</span>
         </button>
       </div>
       {#if webhook.url}
         <div class="stat-actions">
-          <button class="btn btn-xs btn-success" onclick={uploadWebhook}>
-            <Icon icon="fa6-solid:upload" class="h-3 w-3" />
-            <span class="mt-0.5">WebHook</span>
+          <button
+            class="btn btn-xs btn-success inline-flex items-center gap-1"
+            onclick={uploadWebhook}
+          >
+            <Icon icon="lucide:upload" class="h-3.5 w-3.5" />
+            <span>WebHook</span>
           </button>
         </div>
       {/if}
@@ -168,7 +177,7 @@
                 class="btn btn-xs btn-accent btn-square transform transition-transform duration-300 hover:scale-110"
                 onclick={() => editOpen(rollNo)}
               >
-                <Icon icon="tabler:edit" class="h-4 w-4" />
+                <Icon icon="lucide:square-pen" class="h-3.5 w-3.5" />
               </button>
             </td>
           </tr>
@@ -182,7 +191,7 @@
       class="btn btn-sm btn-error btn-square fixed bottom-20 transform transition-transform duration-300 ease-in-out hover:scale-110"
       onclick={deleteSelected}
     >
-      <Icon icon="mingcute:delete-line" class="h-4 w-4" />
+      <Icon icon="lucide:trash-2" class="h-4 w-4" />
     </button>
   {/if}
 

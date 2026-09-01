@@ -15,7 +15,7 @@
           <span class="text-xs">{alert.subtext}</span>
         {/if}
       </span>
-      <Icon icon="mdi:close" class="h-5 w-5" onclick={() => removeAlert(id)} />
+      <Icon icon="lucide:x" class="h-5 w-5 cursor-pointer" onclick={() => removeAlert(id)} />
     </div>
   {/each}
 </div>
