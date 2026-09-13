@@ -122,8 +122,8 @@ importers:
         specifier: ^5.0.8
         version: 5.0.8
       daisyui:
-        specifier: ^5.7.22
-        version: 5.7.22
+        specifier: ^5.7.28
+        version: 5.7.28
       rxing-wasm:
         specifier: link:rxing-wasm/pkg
         version: link:rxing-wasm/pkg
@@ -479,8 +479,8 @@ packages:
     resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
 
-  daisyui@5.7.22:
-    resolution: {integrity: sha512-pYii+2NCN0+OIL6Lpuc054LK0QJeNv+GRK9UzN1GRmjdYhYO6WFl0QLoj5oPcitPD7o+okiiI0SKFkn641TxmA==}
+  daisyui@5.7.28:
+    resolution: {integrity: sha512-BxQap2QOj7NQy5nEsjTHRmybmUZP3t+O5G6vfdidZuptBsh/QyKN9wbdrGDZk198fMI3UyYnA/rCWlggZIhGnw==}
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -1353,7 +1353,7 @@ snapshots:
 
   commander@8.3.0: {}
 
-  daisyui@5.7.22: {}
+  daisyui@5.7.28: {}
 
   debug@4.4.3:
     dependencies:
