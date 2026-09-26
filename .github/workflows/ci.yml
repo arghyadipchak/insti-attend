@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   PROJECT_NAME: insti-attend
@@ -41,7 +41,7 @@ jobs:
         run: curl https://wasm-bindgen.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup pnpm
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           version: ^12.0.0
           runtime: node@lts
@@ -50,13 +50,13 @@ jobs:
       - name: Run type check
         run: pnpm check
 
-      - name: Build production bundle
+      - name: Build site
         run: pnpm build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: build-dist
+          name: dist
           path: dist/
           retention-days: 1
 
@@ -64,7 +64,6 @@ jobs:
     name: Deploy Preview
     needs: build
     runs-on: ubuntu-latest
-
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'push' && github.ref_type == 'branch')
@@ -79,11 +78,11 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
-          name: build-dist
+          name: dist
           path: dist
 
       - name: Setup pnpm
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           version: ^12.0.0
           runtime: node@lts
@@ -97,20 +96,57 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: >-
             pages deploy dist
-            --project-name=${{ env.PROJECT_NAME }}
+            --project-name=${{ vars.CLOUDFLARE_PROJECT_NAME }}
             --branch=dev
             --commit-dirty=true
 
   production:
-    name: Release & Deploy Production
+    name: Deploy Production
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
 
+    permissions:
+      deployments: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: Setup pnpm
+        uses: pnpm/setup@v3
+        with:
+          version: ^12.0.0
+          runtime: node@lts
+          cache: true
+          install: false
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy dist
+            --project-name=${{ vars.CLOUDFLARE_PROJECT_NAME }}
+            --branch=main
+            --commit-message=${{ github.ref_name }}
+            --commit-dirty=true
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
 
     permissions:
       contents: write
-      deployments: write
 
     steps:
       - name: Checkout repository
@@ -121,28 +157,8 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
-          name: build-dist
+          name: dist
           path: dist
-
-      - name: Setup pnpm
-        uses: pnpm/setup@v2
-        with:
-          version: ^12.0.0
-          runtime: node@lts
-          cache: true
-          install: false
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: >-
-            pages deploy dist
-            --project-name=${{ env.PROJECT_NAME }}
-            --branch=main
-            --commit-message=${{ github.ref_name }}
-            --commit-dirty=true
 
       - name: Archive build artifacts
         run: |
