@@ -41,7 +41,7 @@ jobs:
         run: curl https://wasm-bindgen.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup pnpm
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           version: ^12.0.0
           runtime: node@lts
@@ -83,7 +83,7 @@ jobs:
           path: dist
 
       - name: Setup pnpm
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           version: ^12.0.0
           runtime: node@lts
@@ -125,7 +125,7 @@ jobs:
           path: dist
 
       - name: Setup pnpm
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           version: ^12.0.0
           runtime: node@lts
