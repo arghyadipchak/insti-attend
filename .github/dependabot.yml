@@ -6,8 +6,7 @@ updates:
       interval: weekly
       day: saturday
     commit-message:
-      prefix: build
-      include: scope
+      prefix: build(deps)
     open-pull-requests-limit: 10
     groups:
       cargo-crates:
@@ -20,9 +19,8 @@ updates:
       interval: weekly
       day: saturday
     commit-message:
-      prefix: build
-      prefix-development: chore
-      include: scope
+      prefix: build(deps)
+      prefix-development: chore(deps)
     open-pull-requests-limit: 10
     groups:
       npm-packages:
@@ -40,8 +38,7 @@ updates:
       interval: weekly
       day: saturday
     commit-message:
-      prefix: ci
-      include: scope
+      prefix: ci(deps)
     open-pull-requests-limit: 10
     groups:
       github-actions:
