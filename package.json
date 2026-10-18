@@ -51,11 +51,11 @@
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/svelte": "^5.0.8",
-    "daisyui": "^5.7.47",
+    "daisyui": "^5.7.50",
     "rxing-wasm": "link:rxing-wasm/pkg",
     "svelte": "^5.57.2",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.3.3",
+    "vite": "^8.3.4",
     "vite-plugin-wasm": "^3.6.0"
   },
   "devDependencies": {
