@@ -47,7 +47,7 @@
     "format:md": "prettier --write '**/*.md' && markdownlint-cli2 --fix '**/*.md'"
   },
   "dependencies": {
-    "@iconify/svelte": "^5.2.2",
+    "@iconify/svelte": "^5.2.3",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/svelte": "^5.0.8",
@@ -55,7 +55,7 @@
     "rxing-wasm": "link:rxing-wasm/pkg",
     "svelte": "^5.57.2",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.3.4",
+    "vite": "^8.3.5",
     "vite-plugin-wasm": "^3.6.0"
   },
   "devDependencies": {
