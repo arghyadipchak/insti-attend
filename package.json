@@ -59,7 +59,7 @@
     "vite-plugin-wasm": "^3.6.0"
   },
   "devDependencies": {
-    "markdownlint-cli2": "^0.24.1",
+    "markdownlint-cli2": "^0.24.2",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "prettier-plugin-tailwindcss": "^0.8.1",
